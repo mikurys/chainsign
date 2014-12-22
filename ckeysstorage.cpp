@@ -42,7 +42,7 @@ void cKeysStorage::GenerateRSAKey(unsigned int keyLength, std::string fileName)
 	
 	mCurrentKey++;
 	
-	std::cout << "end of GenerateRSAKey" << std::endl;
+    std::cout << "end of GenerateRSAKey" << std::endl;
 }
 
 bool cKeysStorage::RSAVerifyFile(const std::string &fileName, const std::string &instance) // load .sig file
@@ -137,19 +137,19 @@ void cKeysStorage::savePubFile(unsigned int numberOfKey, const CryptoPP::RSA::Pu
 	pPubKey.DEREncode(pubkeysink);
 	pubkeysink.MessageEnd();
 	
-	//std::cout << "Pub key:" << std::endl;
+    std::cout << "Pub key:" << std::endl;
+
 	//append from tmp to pub file
-	/*std::ifstream tmpFile("tmp");
+    std::ifstream outFile(fileName);
 	char s;
-	while (!tmpFile.eof())
+    while (!outFile.eof())
 	{
-		tmpFile >> std::noskipws >> s;
-		mOutFile << s;
+        outFile >> std::noskipws >> s;
 		std::cout << s;
 	}
 	
     mOutFile.close();
-    std::cout << std::endl;*/
+    std::cout << std::endl;
     
     std::cout << "end of savePubFile" << std::endl;
 }
