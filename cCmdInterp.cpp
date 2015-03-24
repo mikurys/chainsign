@@ -81,9 +81,9 @@ void cCmdInterp::cmdReadLoop()
 			//keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName); // XXX
 			keyStorage.RemoveRSAKey(); // XXX
 			//system(std::string("mv *.sig2 " + mOutDir).c_str());
-			system(std::string("mv *.sig2 " + mOutDir).c_str());
-			system(std::string("mv *.sig " + path).c_str());
-			system(std::string("mv *.pub " + path).c_str());
+			system(std::string("cp *.sig2 " + mOutDir).c_str());
+			system(std::string("cp *.sig " + path).c_str());
+			system(std::string("cp *.pub " + path).c_str());
 			//system("rm *.pub");
 			
 			std::cout << "outDir " << outDir << std::endl;
