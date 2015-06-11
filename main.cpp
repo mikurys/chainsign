@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
 		po::options_description desc("Options");
 		desc.add_options()
 		("help", "print help messages")
-		("daemon", "[name of instance] [outdir name] run as daemon mode")
+		("daemon", "run as daemon mode")
 		("verify-chain", "[key.pub] [good_keys] verify keys and move them to good-key")
 		("verify-file", "[sig_file]")
 		("client", "[command]");
@@ -93,14 +93,14 @@ int main(int argc, char* argv[]) {
 			}
 
 			if (vm.count("daemon")) {
-				assert(argc == 4);
+				assert(argc == 2);
 //				if (isDaemonRunning()) return 1;
 
 				auto fifoFile = mkfifo(fifo.c_str(), 0666);
 				if (fifoFile == -1) cout << "problem with creating fifo" << endl;
 
 				cCmdInterp cmdInterp(fifo);
-				cmdInterp.setOutDir(std::string(argv[3]));
+				//cmdInterp.setOutDir(std::string(argv[3]));
 				std::cout << "start loop" << std::endl;
 				cmdInterp.cmdReadLoop();
 			}

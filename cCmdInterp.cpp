@@ -14,10 +14,13 @@ cCmdInterp::cCmdInterp(std::string pFifoName) {
 void cCmdInterp::cmdReadLoop()
 {
 	std::string line;
+	std::cout << "start cmdReadLoop" << std::endl;
+	std::cout << "mOutDir = " << mOutDir << std::endl;
+	mOutDir.clear();
 	keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub"); // generate 1st key
 	while (1)
 	{
-        //std::cout << "loop" << std::endl;
+        std::cout << "loop" << std::endl;
         // read command from fifo
 		inputFIFO.open("fifo");
 		std::getline(inputFIFO, line);
@@ -60,14 +63,14 @@ void cCmdInterp::cmdReadLoop()
 			}
 			std::cout << "path: " << path << std::endl;
 			line.erase(line.begin(), it + 1);
-			std::string outDir = line;
+			//std::string outDir = line;
 			std::string file(line);
 			std::cout << "FILE: " << file << std::endl;
-			outDir.erase(outDir.end() - 4, outDir.end());
-			std::cout << "outDir " << outDir << std::endl;
-			setOutDir(outDir);
+			//outDir.erase(outDir.end() - 4, outDir.end());
+			//std::cout << "outDir " << outDir << std::endl;
+			//setOutDir(outDir);
 			std::cout << "current file: " << line << std::endl;
-			system(std::string("cp " + line + " " + outDir).c_str()); // cp file to out dir(archive)
+			//system(std::string("cp " + line + " " + outDir).c_str()); // cp file to out dir(archive)
 			std::cout << "out path" << mOutDir + "-" + line + ".sig" << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
 			system(std::string("cp " + line + " .").c_str()); // cp file co current dir
@@ -80,7 +83,7 @@ void cCmdInterp::cmdReadLoop()
 			//keyStorage.RSASignFile(file, mOutDir + "-" + file + ".sig", false); // sign file
 			//keyStorage.RSASignFile(mOutDir + pubFileName, mOutDir + pubFileName + ".sig", true);	// sign key
 			keyStorage.RSASignNormalFile(file, file + ".sig"); // sign file
-			keyStorage.RSASignNormalFile(mOutDir + pubFileName, mOutDir + pubFileName + ".sig");
+			keyStorage.RSASignNormalFile(pubFileName, pubFileName + ".sig");
 			
 			//keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName); // XXX
 			keyStorage.RemoveRSAKey(); // XXX
@@ -90,7 +93,7 @@ void cCmdInterp::cmdReadLoop()
 			//system(std::string("cp *.pub " + path).c_str());
 			//system("rm *.pub");
 			
-			std::cout << "outDir " << outDir << std::endl;
+			//std::cout << "outDir " << outDir << std::endl;
 			//std::cout << "create archive" << std::endl;
 			//std::cout << std::string("tar zcvf " + path +  outDir + ".tar.gz " + outDir) << std::endl;
 			//system(std::string("tar zcvf " + path + outDir + ".tar.gz " + outDir).c_str());
