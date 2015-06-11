@@ -21,6 +21,10 @@ cKeysStorage::cKeysStorage()
 {
 }
 
+cKeysStorage::~cKeysStorage()
+{
+	saveRSAPrivKey();
+}
 
 void cKeysStorage::GenerateRSAKey(unsigned int keyLength, std::string fileName)
 {
