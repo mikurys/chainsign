@@ -13,9 +13,14 @@
 
 #include <boost/program_options.hpp>
 #include "ckeysstorage.h"
-#include "cCmdInterp.hpp"
+//#include "cCmdInterp.hpp"
 
-#define KEY_SIZE 4096
+// XXX
+#include <crypto++/rsa.h>
+#include <crypto++/osrng.h>
+using namespace CryptoPP;
+
+#define KEY_SIZE 2048
 
 using namespace std;
 
@@ -56,98 +61,13 @@ void clientCmd(const string &fifo, const string &cmd) {
 }
 
 int main(int argc, char* argv[]) {
-	const string fifo = "fifo";
 
-	try {
-		string opt;
-		namespace po = boost::program_options;
-		po::options_description desc("Options");
-		desc.add_options()
-		("help", "print help messages")
-		("daemon", "[name of instance] [outdir name] run as daemon mode")
-		("verify-chain", "[key.pub] [good_keys] verify keys and move them to good-key")
-		("verify-file", "[sig_file]")
-		("client", "[command]");
-
-		po::variables_map vm;
-		po::store(po::parse_command_line(argc, argv, desc), vm);
-		po::notify(vm);
-
-		try {
-			std::cout << "start main" << std::endl;
-			if (vm.count("help") || argc == 1) {
-				cout << desc << endl;
-				printHelp();
-				return 0;
-			}
-
-			if (vm.count("daemon")) {
-				assert(argc == 4);
-//				if (isDaemonRunning()) return 1;
-
-				auto fifoFile = mkfifo(fifo.c_str(), 0666);
-				if (fifoFile == -1) cout << "problem with creating fifo" << endl;
-
-				cCmdInterp cmdInterp(fifo, argv[2]);
-				cmdInterp.setOutDir(std::string(argv[3]));
-				std::cout << "start loop" << std::endl;
-				cmdInterp.cmdReadLoop();
-			}
-
-			if (vm.count("verify-chain")) {
-				assert(argc == 5);
-
-				cCmdInterp cmdInterp;
-				cmdInterp.setOutDir(std::string(argv[3]));
-				unsigned int ret = cmdInterp.verify(std::string(argv[2]));
-				if (ret == -1) return 2; // keys verification error
-				std::cout << "OK" << std::endl;
-			}
-
-			if (vm.count("verify-file")) {
-				assert(argc == 3);
-				cCmdInterp cmdInterp;
-				return cmdInterp.verifyOneFile(std::string(argv[2]));
-			}
-
-			if (vm.count("client")) {
-				if (!isDaemonRunning()) return 1;
-				string cmd = argv[2]; cmd += "\n";
-				clientCmd(fifo,cmd);
-
-				return 0;
-
-			}
-
-			/*
-
-			 std::cout << KEY_SIZE << std::endl;
-			 cKeysStorage keyStorage = cKeysStorage();
-			 keyStorage.RSAVerifyFile("test.txt.sig", "my_instance");
-			 for (int i = 0; i < 1; ++i)
-			 keyStorage.generate(std::to_string(i));
-			 keyStorage.sign("test.txt", 0);
-			 keyStorage.GenerateRSAKey(KEY_SIZE);
-			 keyStorage.RSASignFile("test.txt", "test.sig", 0);
-			 */
-
-		}
-
-		catch (po::error& e) {
-			std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
-			std::cerr << desc << std::endl;
-			return parser::UNKNOWN_COMMAND;
-		}
-	}
-
-	catch (std::exception& e)
-	{
-		std::cerr << "Unhandled Exception reached the top of main: "
-				<< e.what() << ", application will now exit" << std::endl;
-		return parser::ERROR;
-
-	}
-
+	cKeysStorage keyStorage;
+	keyStorage.GenerateRSAKey(KEY_SIZE, "key_1.pub");
+	keyStorage.RSASignFile("test.txt", "test.txt.sig", false);
+	//keyStorage.RSAVerifyFile("test.txt.sig", "");
+	std::string signedTxt;
+	FileSource("test.txt.sig", true, new StringSink(signedTxt)); 
 	return 0;
 }
 

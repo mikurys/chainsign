@@ -13,7 +13,7 @@ class cKeysStorage
 public:
     cKeysStorage();
     void RSASignFile(const std::string& messageFilename, const std::string& signatureFilename, bool signKey);
-    bool RSAVerifyFile(const std::string &fileName, const std::string &instance);
+    bool RSAVerifyFile(const std::string &sigFileName);
     void GenerateRSAKey(unsigned int keyLength, std::string fileName);
     unsigned int getCurrentKey() { return mCurrentKey; }
     void RemoveRSAKey();
@@ -21,7 +21,7 @@ private:
     std::map <int, CryptoPP::RSA::PrivateKey> mPrvKeys;
     void savePubFile(unsigned int numberOfKey, const CryptoPP::RSA::PublicKey& pPubKey, std::string fileName);
     CryptoPP::RSA::PublicKey loadPubFile(std::string pubKey);
-	
+	// void savePrivKey();
 	unsigned int mCurrentKey;
 };
 
