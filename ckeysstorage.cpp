@@ -264,15 +264,15 @@ void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std
 	// load data from input file to string
 	std::string strContents;
     FileSource(inputFilename.c_str(), true, new StringSink(strContents));
-	std::cout << "data from " << inputFilename << std::endl;
+	//std::cout << "data from " << inputFilename << std::endl;
 	std::cout << strContents << std::endl;
 	// generate pubFile name
 	const std::string pubKeyFilename("key_" + std::to_string(mCurrentKey - 1) + ".pub");
-	std::cout << "pub key filename " << pubKeyFilename << std::endl;
+	//std::cout << "pub key filename " << pubKeyFilename << std::endl;
 	std::ofstream outFile(signatureFilename);
 	outFile << "PubKeyFilename " << pubKeyFilename << std::endl;
 	// sign data from input file
-	std::cout << "start sign file using key nr " << mCurrentKey - 1 << std::endl;
+	//std::cout << "start sign file using key nr " << mCurrentKey - 1 << std::endl;
 	RSASSA_PKCS1v15_SHA_Signer privkey(mPrvKeys.at(mCurrentKey - 1));
 	SecByteBlock sbbSignature(privkey.SignatureLength());
 	privkey.SignMessage(
@@ -291,9 +291,9 @@ void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std
 	outFile.write((const char*)sbbSignature.data(), sbbSignature.size());
 	
 	// save to test file	
-	FileSink sinksig("sigtest.sig");
+	/*FileSink sinksig("sigtest.sig");
 	sinksig.Put(sbbSignature, sbbSignature.size());
-	sinksig.MessageSeriesEnd();
+	sinksig.MessageSeriesEnd();*/
 }
 
 /*
