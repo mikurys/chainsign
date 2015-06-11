@@ -98,7 +98,7 @@ void cCmdInterp::cmdReadLoop()
 			//std::cout << std::string("tar zcvf " + path +  outDir + ".tar.gz " + outDir) << std::endl;
 			//system(std::string("tar zcvf " + path + outDir + ".tar.gz " + outDir).c_str());
 		}
-		else if(line == "VERIFY-FILE")
+/*		else if(line == "VERIFY-FILE")
 		{
 			bool ok;
 			std::cout << "VERIFY-FILE" << std::endl;
@@ -106,22 +106,20 @@ void cCmdInterp::cmdReadLoop()
 			inputFIFO.close();
 			inputFIFO.open("fifo");
 			std::getline(inputFIFO, line);
-			std::string instance;
-			auto it = line.begin();
-			while (*it != '-')
-			{
-				instance.push_back(*it);
-				it++;
-			}
+
 			std::cout << "line " << line << std::endl;
-			std::cout << "instance " << instance << std::endl;
 			std::string tmp;
 			unsigned int key; // file was signed this key
 			std::ifstream inFile(line);
 			inFile >> tmp;
-			inFile >> key;
+			inFile >> tmp;
+			std::cout << "tmp before stoi" << tmp << std::endl;
+			tmp.erase(0, 4); // 1.prv
+			tmp.erase(tmp.size() - 4); // 1
+			key = std::stoi(tmp);
+			
 			inFile.close();
-			if (key >= verify(std::string(instance + "-key1.pub"))) // XXX key1.pub.sig
+			if (key >= verify(std::string("key_1.pub"))) // XXX key1.pub.sig
 			//if (key < verify(std::string(instance + "-key1.pub"))) // XXX 
 			{
 				std::cout << "                                               Keys OK" << std::endl;
@@ -133,14 +131,15 @@ void cCmdInterp::cmdReadLoop()
 				std::cout << "                                               Keys verification error" << std::endl;
 			}
 			
-			bool fileOK = keyStorage.RSAVerifyFile(line);
+			//bool fileOK = keyStorage.RSAVerifyFile(line);
+			bool fileOK = keyStorage.RSAVerifyNormalFile(line, line + ".sig");
 			inputFIFO.close();
 			
 			std::cout << "keys " << ok << std::endl;
 			std::cout << "file " << fileOK << std::endl;
 			if (ok && fileOK)
 				std::cout << "File OK" << std::endl;
-		}
+		}*/
 		else if(line == "SIGN-NEXTKEY-WAV-FILES")
 		{
 			std::cout << "SIGN-NEXTKEY-WAV-FILES" << std::endl;
@@ -193,10 +192,10 @@ void cCmdInterp::cmdReadLoop()
 
 unsigned int cCmdInterp::verify(std::string firstKey) // verify keys, get name of 1st pub file, return last good key
 {
-	std::cout << "start verify" << std::endl;
+	std::cout << "start verify keys" << std::endl;
 	//std::ifstream pubFile;
 	//system(std::string("cp " + firstKey + " " + mOutDir + firstKey).c_str()); // copy 1st key to out dir
-	std::string instance;
+/*	
 	std::string fileName = instance;
 	bool good = true;
 	int keyNumber = 2;
@@ -205,14 +204,19 @@ unsigned int cCmdInterp::verify(std::string firstKey) // verify keys, get name o
 		instance += firstKey.front();
 		firstKey.erase(firstKey.begin());
 	}
+*/
+	const std::string prefixKeyName("key_"); // key_1.pub, key_2.pub ...
+	const std::string suffixKeyName(".pub");
+	bool good = true;
+	int keyNumber = 2;
+	std::string fileName;
 	
 	std::cout << "start loop" << std::endl; 
 	unsigned int lastGoodKey = 1;
-	while (good)
-	{
-		std::ifstream pubFile;
-		fileName = instance + "-key" + std::to_string(keyNumber) + ".pub.sig";
+	while (good) {
+		fileName = prefixKeyName + std::to_string(keyNumber) + suffixKeyName;
 		std::cout << "file name " << fileName << std::endl;
+		std::ifstream pubFile;
 		pubFile.open(fileName);
 		if(!pubFile.good()) // no file
 		{
@@ -221,15 +225,15 @@ unsigned int cCmdInterp::verify(std::string firstKey) // verify keys, get name o
 		}
 		
 		std::cout << "start verify " << fileName << std::endl;
-		good = keyStorage.RSAVerifyFile(fileName);
-		if (good)
-		{
+		//good = keyStorage.RSAVerifyFile(fileName);
+		good = keyStorage.RSAVerifyNormalFile(fileName, fileName + ".sig");
+		//RSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename);
+		if (good) {
 			lastGoodKey = keyNumber;
 			//std::cout << "mv cmd " << "mv " + fileName + " " + mOutDir + fileName << std::endl;
-			fileName.erase(fileName.end() - 4, fileName.end()); // rm ".sig"
-			system(std::string("cp " + fileName + " " + mOutDir + fileName).c_str());
+			//fileName.erase(fileName.end() - 4, fileName.end()); // rm ".sig"
+			//system(std::string("cp " + fileName + " " + mOutDir + fileName).c_str());
 		}
-		
 		keyNumber++;
 	}
 	
