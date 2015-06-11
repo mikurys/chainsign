@@ -18,6 +18,11 @@
 // XXX
 #include <crypto++/rsa.h>
 #include <crypto++/osrng.h>
+#include <crypto++/rsa.h>
+#include <crypto++/osrng.h>
+#include <crypto++/base64.h>
+#include <crypto++/files.h>
+#include <crypto++/hex.h>
 using namespace CryptoPP;
 
 #define KEY_SIZE 2048
@@ -67,7 +72,17 @@ int main(int argc, char* argv[]) {
 	keyStorage.RSASignFile("test.txt", "test.txt.sig", false);
 	//keyStorage.RSAVerifyFile("test.txt.sig", "");
 	std::string signedTxt;
-	FileSource("test.txt.sig", true, new StringSink(signedTxt)); 
+	FileSource("test.txt.sig2", true, new StringSink(signedTxt)); 
+	std::cout << "text from test.txt.sig2" << std::endl;
+	std::cout << signedTxt << std::endl;
+	std::cout << "signedTxt length (data from test.txt.sig2) " << signedTxt.size() << std::endl;
+	
+	std::string signedTxtFromIfstream;
+	std::ifstream input("test.txt.sig2");
+	input >> signedTxtFromIfstream;
+	std::cout << "signedTxtFromIfstream " << signedTxtFromIfstream << std::endl;
+	std::cout << "size of signedTxtFromIfstream " << signedTxtFromIfstream.size() << std::endl;
+	
 	return 0;
 }
 

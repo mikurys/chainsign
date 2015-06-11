@@ -17,6 +17,7 @@ public:
     void GenerateRSAKey(unsigned int keyLength, std::string fileName);
     unsigned int getCurrentKey() { return mCurrentKey; }
     void RemoveRSAKey();
+	void RSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename);
 private:
     std::map <int, CryptoPP::RSA::PrivateKey> mPrvKeys;
     void savePubFile(unsigned int numberOfKey, const CryptoPP::RSA::PublicKey& pPubKey, std::string fileName);

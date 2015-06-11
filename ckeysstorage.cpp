@@ -54,7 +54,7 @@ bool cKeysStorage::RSAVerifyFile(const std::string &sigFileName) // load .sig fi
 	std::string clearTextFileName;
 	int pubicKeyNumber;
 	// read sig file
-	std::ifstream input(fileName);
+	std::ifstream input(sigFileName);
 	input >> line;
 	//parse data
 	input >> pubicKeyNumber;
@@ -89,7 +89,7 @@ bool cKeysStorage::RSAVerifyFile(const std::string &sigFileName) // load .sig fi
 	//std::cout << std::endl << "pubicKeyNumber " << pubicKeyNumber << std::endl;
 	
 	std::string pubFile;
-	pubFile = instance + "-key" + std::to_string(pubicKeyNumber) + ".pub";
+	pubFile = "key_" + std::to_string(pubicKeyNumber) + ".pub";
 	std::cout << "pub file: " << pubFile << std::endl;
 	CryptoPP::RSA::PublicKey currentPubKey = loadPubFile(pubFile);
 	AutoSeededRandomPool rng;
@@ -216,6 +216,7 @@ void cKeysStorage::RSASignFile(const std::string& messageFilename, const std::st
 	RSASSA_PKCS1v15_SHA_Signer privkey(mPrvKeys.at(mCurrentKey - 1));
 	std::cout << "sign file using key nr " << mCurrentKey - 1 << std::endl;
 	SecByteBlock sbbSignature(privkey.SignatureLength());
+	std::cout << "private key signature length " << privkey.SignatureLength() << std::endl;
 	std::cout << "sign message" << std::endl;
 	privkey.SignMessage(
 		rng,
@@ -258,6 +259,17 @@ void cKeysStorage::RemoveRSAKey()
 	mPrvKeys.erase(mPrvKeys.begin());
 }
 
+void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename) {
+	AutoSeededRandomPool rng; // TODO make class member
+	// load data from input file to string
+	std::string strContents;
+    FileSource(inputFilename.c_str(), true, new StringSink(strContents));
+	std::cout << "data from " << inputFilename << std::endl;
+	std::cout << strContents << std::endl;
+	
+	const std::string pubKeyFilename("key_" + std::to_string(mCurrentKey - 1) + ".pub");
+	std::cout << "pub key filename " << pubKeyFilename << std::endl;
+}
 
 /*
 .pub format:
