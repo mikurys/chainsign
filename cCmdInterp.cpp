@@ -9,6 +9,8 @@
 
 cCmdInterp::cCmdInterp(std::string pFifoName) {
 	inputFIFO.open(pFifoName);
+	signal(SIGINT, cCmdInterp::signalHandler);
+	sKeyStoragePtr = &keyStorage;
 }
 
 void cCmdInterp::cmdReadLoop()
@@ -21,7 +23,7 @@ void cCmdInterp::cmdReadLoop()
 		keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub"); // generate 1st key
 	}
 	
-	while (1)
+	while (!mStop)
 	{
         std::cout << "loop" << std::endl;
         // read command from fifo
@@ -282,3 +284,11 @@ unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = sig fi
 	std::cout << "OK" << std::endl;	
 	return 0;
 }
+
+void cCmdInterp::signalHandler(int signum) {
+	std::cout << "signalHandler" << std::endl;
+	sKeyStoragePtr->saveRSAPrivKey();
+	exit(signum);
+}
+
+cKeysStorage* cCmdInterp::sKeyStoragePtr = nullptr;

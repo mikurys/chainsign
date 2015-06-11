@@ -3,9 +3,10 @@
 
 #include <fstream>
 #include <string>
+#include <csignal>
 #include "ckeysstorage.h"
 
-class cCmdInterp
+class cCmdInterp // TODO singletone
 {
 public:
 	cCmdInterp() = default;
@@ -14,10 +15,14 @@ public:
 	unsigned int verify(std::string firstKey);
 	void setOutDir(std::string outDir);
 	unsigned int verifyOneFile(std::string fileName);
+	
 	cKeysStorage keyStorage;
 private:
 	std::ifstream inputFIFO;
 	std::string mOutDir;
+	bool mStop = false;
+	static void signalHandler(int signum);
+	static cKeysStorage *sKeyStoragePtr;
 };
 
 #endif
