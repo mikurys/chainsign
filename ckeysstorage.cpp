@@ -289,12 +289,20 @@ void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std
 	//std::cout << std::endl;
 	// save to sig file
 	outFile.write((const char*)sbbSignature.data(), sbbSignature.size());
-	
-	// save to test file	
-	/*FileSink sinksig("sigtest.sig");
-	sinksig.Put(sbbSignature, sbbSignature.size());
-	sinksig.MessageSeriesEnd();*/
 }
+
+bool cKeysStorage::RSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename) {
+	std::ifstream sigFile(signatureFilename);
+	std::string word;
+	sigFile >> word; // "PubKeyFilename"
+	std::string pubFileName;
+	sigFile >> pubFileName;
+	sigFile >> word; // "SignatureSize"
+	unsigned int signatureSize;
+	sigFile >> signatureSize;
+	return true;
+}
+
 
 /*
 .pub format:
