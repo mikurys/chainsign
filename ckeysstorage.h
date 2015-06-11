@@ -23,7 +23,7 @@ public:
     void GenerateRSAKey(unsigned int keyLength, std::string fileName);
     unsigned int getCurrentKey() { return mCurrentKey; }
     void RemoveRSAKey();
-	
+	void saveRSAPrivKey() const;
 	// new format
 	void RSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename);
 	bool RSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename);

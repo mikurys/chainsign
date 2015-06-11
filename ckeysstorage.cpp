@@ -256,6 +256,15 @@ void cKeysStorage::RemoveRSAKey()
 	mPrvKeys.erase(mPrvKeys.begin());
 }
 
+void cKeysStorage::saveRSAPrivKey() const{
+	std::cout << "save private key nr " << mPrvKeys.begin()->first << std::endl;
+	const std::string outFilename("key_" + std::to_string(mPrvKeys.begin()->first) + ".prv"); // save first priv key from map
+	Base64Encoder prvkeysink(new FileSink(outFilename.c_str()));
+	mPrvKeys.begin()->second.DEREncode(prvkeysink);
+	prvkeysink.MessageEnd();
+}
+
+
 void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename) {
 	// load data from input file to string
 	std::string strContents;
