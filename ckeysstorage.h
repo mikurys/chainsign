@@ -4,9 +4,15 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 
 #include <crypto++/rsa.h>
 #include <crypto++/osrng.h>
+#include <crypto++/base64.h>
+#include <crypto++/files.h>
+#include <crypto++/hex.h>
+
+using namespace CryptoPP;
 
 class cKeysStorage
 {
@@ -27,6 +33,7 @@ private:
     CryptoPP::RSA::PublicKey loadPubFile(std::string pubKey);
 	// void savePrivKey();
 	unsigned int mCurrentKey;
+	AutoSeededRandomPool mRng;
 };
 
 #endif // CKEYSSTORAGE_H

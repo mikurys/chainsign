@@ -300,6 +300,27 @@ bool cKeysStorage::RSAVerifyNormalFile(const std::string& inputFilename, const s
 	sigFile >> word; // "SignatureSize"
 	unsigned int signatureSize;
 	sigFile >> signatureSize;
+	// load sigature data
+	std::shared_ptr<char> signature(new char[signatureSize]);
+	sigFile.read(signature.get(), signatureSize);
+	//std::cout << "signature" << std::endl;
+	//std::cout << signature.get();
+	//std::cout << std::endl;
+	
+	// load input file
+	std::string sourceData;
+	FileSource(inputFilename.c_str(), true, new StringSink(sourceData));
+	
+	std::string combined(sourceData);
+	combined.append(signature.get(), signatureSize);
+	// load pub key
+	CryptoPP::RSA::PublicKey loadPubKey = loadPubFile(pubFileName);
+	RSASSA_PKCS1v15_SHA_Verifier verifier(loadPubKey);
+	
+	std::cout << "Singature" << std::endl;
+	std::cout.write(signature.get(), signatureSize);
+	std::cout << std::endl;
+	
 	return true;
 }
 

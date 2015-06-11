@@ -74,6 +74,8 @@ int main(int argc, char* argv[]) {
 	std::cout << "******************************" << std::endl;
 	keyStorage.RSASignNormalFile("test.txt", "test.txt.sig-new");
 	std::cout << "******************************" << std::endl;
+	keyStorage.RSAVerifyNormalFile("test.txt", "test.txt.sig-new");
+	std::cout << "******************************" << std::endl;
 	/*std::string signedTxt;
 	FileSource("test.txt.sig2", true, new StringSink(signedTxt)); 
 	std::cout << "text from test.txt.sig2" << std::endl;
