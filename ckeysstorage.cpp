@@ -25,10 +25,9 @@ cKeysStorage::cKeysStorage()
 void cKeysStorage::GenerateRSAKey(unsigned int keyLength, std::string fileName)
 {
 	using namespace CryptoPP;
-	AutoSeededRandomPool rng;
 	// Generate Parameters
 	InvertibleRSAFunction params;
-	params.GenerateRandomWithKeySize(rng, keyLength);
+	params.GenerateRandomWithKeySize(mRng, keyLength);
 	
 	// Create Keys
 	CryptoPP::RSA::PrivateKey privateKey(params);
@@ -92,8 +91,7 @@ bool cKeysStorage::RSAVerifyFile(const std::string &sigFileName) // load .sig fi
 	pubFile = "key_" + std::to_string(pubicKeyNumber) + ".pub";
 	std::cout << "pub file: " << pubFile << std::endl;
 	CryptoPP::RSA::PublicKey currentPubKey = loadPubFile(pubFile);
-	AutoSeededRandomPool rng;
-	std::cout << "pub key validate " << currentPubKey.Validate(rng, 1);
+	std::cout << "pub key validate " << currentPubKey.Validate(mRng, 1);
 	std::cout << std::endl << "start verify" << std::endl;
 	RSASSA_PKCS1v15_SHA_Verifier verifier(currentPubKey);
 
@@ -203,7 +201,6 @@ void cKeysStorage::RSASignFile(const std::string& messageFilename, const std::st
 {
 	if (signKey)
 		--mCurrentKey;
-	AutoSeededRandomPool rng;
 
     std::string strContents;
     FileSource(messageFilename.c_str(), true, new StringSink(strContents));
@@ -219,7 +216,7 @@ void cKeysStorage::RSASignFile(const std::string& messageFilename, const std::st
 	std::cout << "private key signature length " << privkey.SignatureLength() << std::endl;
 	std::cout << "sign message" << std::endl;
 	privkey.SignMessage(
-		rng,
+		mRng,
 		(byte const*) strContents.data(),
 		strContents.size(),
 		sbbSignature);
@@ -260,7 +257,6 @@ void cKeysStorage::RemoveRSAKey()
 }
 
 void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename) {
-	AutoSeededRandomPool rng; // TODO make class member
 	// load data from input file to string
 	std::string strContents;
     FileSource(inputFilename.c_str(), true, new StringSink(strContents));
@@ -276,7 +272,7 @@ void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std
 	RSASSA_PKCS1v15_SHA_Signer privkey(mPrvKeys.at(mCurrentKey - 1));
 	SecByteBlock sbbSignature(privkey.SignatureLength());
 	privkey.SignMessage(
-		rng,
+		mRng,
 		(byte const*) strContents.data(),
 		strContents.size(),
 		sbbSignature);
