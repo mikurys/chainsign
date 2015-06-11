@@ -258,27 +258,20 @@ void cCmdInterp::setOutDir(std::string outDir)
 
 unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = sig file
 {
-	std::string instance;
-	auto it = fileName.begin();
-	while (*it != '-')
-	{
-		instance.push_back(*it);
-		it++;
-	}
 	
 	//std::cout << "RSAVerifyFile " << keyStorage.RSAVerifyFile(fileName, instance) << std::endl;
 	
-	std::string firstPubKey;
-	firstPubKey = instance + "-key1.pub";
+	std::string firstPubKey = "key_1.pub";
 	
 	std::cout << "Start keys verification" << std::endl;
 	std::cout << "first pub key " << firstPubKey << std::endl;
-	unsigned int ret = verify(std::string(fileName));
+	
+	unsigned int ret = verify(firstPubKey); // verify keys
 	if (ret == -1)
 		return 2;
 	
 	std::cout << "file name " << fileName << std::endl;
-	ret = keyStorage.RSAVerifyFile(fileName);
+	ret = keyStorage.RSAVerifyNormalFile(fileName, fileName + ".sig");
 	//std::cout << ret << std::endl;
 	if (ret == 0)
 		return 3;
