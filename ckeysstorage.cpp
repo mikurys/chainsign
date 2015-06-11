@@ -254,6 +254,7 @@ void cKeysStorage::RemoveRSAKey()
 	if (mCurrentKey == 1)
 		return;
 	mPrvKeys.erase(mPrvKeys.begin());
+	std::cout << "private keys in memory " << mPrvKeys.size() << std::endl;
 }
 
 void cKeysStorage::saveRSAPrivKey() const{
@@ -262,6 +263,22 @@ void cKeysStorage::saveRSAPrivKey() const{
 	Base64Encoder prvkeysink(new FileSink(outFilename.c_str()));
 	mPrvKeys.begin()->second.DEREncode(prvkeysink);
 	prvkeysink.MessageEnd();
+}
+
+void cKeysStorage::loadRSAPrivKey(std::string filename) {
+	CryptoPP::RSA::PrivateKey prvKey;
+	ByteQueue bytes;
+	FileSource prvKeyFile(filename.c_str(), true, new Base64Decoder);
+	prvKeyFile.TransferTo(bytes);
+	bytes.MessageEnd();
+	prvKey.Load(bytes);
+	// generate key number from filename
+	unsigned int keyNumber;
+	// key_1.prv
+	filename.erase(0, 4); // 1.prv
+	filename.erase(filename.size() - 4); // 1
+	keyNumber = std::stoi(filename);
+	mPrvKeys.insert(std::pair<int, CryptoPP::RSA::PrivateKey>(keyNumber, prvKey));
 }
 
 
