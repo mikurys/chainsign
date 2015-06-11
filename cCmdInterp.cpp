@@ -126,7 +126,7 @@ void cCmdInterp::cmdReadLoop()
 				std::cout << "                                               Keys verification error" << std::endl;
 			}
 			
-			bool fileOK = keyStorage.RSAVerifyFile(line, instance);
+			bool fileOK = keyStorage.RSAVerifyFile(line);
 			inputFIFO.close();
 			
 			std::cout << "keys " << ok << std::endl;
@@ -214,7 +214,7 @@ unsigned int cCmdInterp::verify(std::string firstKey) // verify keys, get name o
 		}
 		
 		std::cout << "start verify " << fileName << std::endl;
-		good = keyStorage.RSAVerifyFile(fileName, instance);
+		good = keyStorage.RSAVerifyFile(fileName);
 		if (good)
 		{
 			lastGoodKey = keyNumber;
@@ -267,7 +267,7 @@ unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = sig fi
 		return 2;
 	
 	std::cout << "file name " << fileName << std::endl;
-	ret = keyStorage.RSAVerifyFile(fileName, instance);
+	ret = keyStorage.RSAVerifyFile(fileName);
 	//std::cout << ret << std::endl;
 	if (ret == 0)
 		return 3;

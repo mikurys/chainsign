@@ -13,7 +13,7 @@
 
 #include <boost/program_options.hpp>
 #include "ckeysstorage.h"
-//#include "cCmdInterp.hpp"
+#include "cCmdInterp.hpp"
 
 // XXX
 #include <crypto++/rsa.h>
