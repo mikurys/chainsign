@@ -9,7 +9,7 @@ class cCmdInterp
 {
 public:
 	cCmdInterp() = default;
-	cCmdInterp(std::string pFifoName, std::string pInstance);
+	cCmdInterp(std::string pFifoName);
 	void cmdReadLoop();
 	unsigned int verify(std::string firstKey);
 	void setOutDir(std::string outDir);
@@ -17,7 +17,6 @@ public:
 private:
 	std::ifstream inputFIFO;
 	cKeysStorage keyStorage;
-	std::string inst;
 	std::string mOutDir;
 };
 

@@ -67,7 +67,7 @@ void clientCmd(const string &fifo, const string &cmd) {
 
 int main(int argc, char* argv[]) {
 
-	const string fifo = "fifo";
+	const string fifo = "fifo"; // name of fifo file
 
 	try {
 		string opt;
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
 				auto fifoFile = mkfifo(fifo.c_str(), 0666);
 				if (fifoFile == -1) cout << "problem with creating fifo" << endl;
 
-				cCmdInterp cmdInterp(fifo, argv[2]);
+				cCmdInterp cmdInterp(fifo);
 				cmdInterp.setOutDir(std::string(argv[3]));
 				std::cout << "start loop" << std::endl;
 				cmdInterp.cmdReadLoop();

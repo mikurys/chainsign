@@ -7,19 +7,18 @@
 
 #define KEY_SIZE 2048
 
-cCmdInterp::cCmdInterp(std::string pFifoName, std::string pInstance)
-:inst(pInstance)
-{
+cCmdInterp::cCmdInterp(std::string pFifoName) {
 	inputFIFO.open(pFifoName);
 }
 
 void cCmdInterp::cmdReadLoop()
 {
 	std::string line;
-	keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + inst + "-key" + std::to_string(keyStorage.getCurrentKey()) + ".pub"); // generate 1st key
+	keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub"); // generate 1st key
 	while (1)
 	{
         //std::cout << "loop" << std::endl;
+        // read command from fifo
 		inputFIFO.open("fifo");
 		std::getline(inputFIFO, line);
         //std::cout << "line " << line << std::endl;
@@ -31,11 +30,12 @@ void cCmdInterp::cmdReadLoop()
 			std::cout << "SIGN-NEXTKEY" << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
 			std::cout << std::endl;
-			std::string pubFileName = inst + "-key" + std::to_string(keyStorage.getCurrentKey()) + ".pub";
+			std::string pubFileName = "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub";
 			//std::string nextPubFileName = inst + "-key" + std::to_string(keyStorage.getCurrentKey() + 1) + ".pub";
 			std::string path; // input dir
 			//system(std::string("touch " + pubFileName).c_str());
 			std::cout << "pubFileName " << pubFileName << std::endl;
+			// get filename
 			inputFIFO.open("fifo");
 			std::getline(inputFIFO, line);
 			if (!boost::filesystem::exists(line)) 
@@ -67,7 +67,7 @@ void cCmdInterp::cmdReadLoop()
 			setOutDir(outDir);
 			std::cout << "current file: " << line << std::endl;
 			system(std::string("cp " + line + " " + outDir).c_str()); // cp file to out dir(archive)
-			std::cout << "out path" << mOutDir + inst + "-" + line + ".sig" << std::endl;
+			std::cout << "out path" << mOutDir + "-" + line + ".sig" << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
 			system(std::string("cp " + line + " .").c_str()); // cp file co current dir
 			
@@ -75,7 +75,7 @@ void cCmdInterp::cmdReadLoop()
 			std::cout << "Last key name: " << pubFileName << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
 			keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName); // XXX
-			keyStorage.RSASignFile(file, mOutDir + inst + "-" + file + ".sig", false); // sign file
+			keyStorage.RSASignFile(file, mOutDir + "-" + file + ".sig", false); // sign file
 			keyStorage.RSASignFile(mOutDir + pubFileName, mOutDir + pubFileName + ".sig", true);	// sign key
 			
 			//keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName); // XXX
@@ -140,7 +140,7 @@ void cCmdInterp::cmdReadLoop()
 			boost::filesystem::directory_iterator dirIterator(".");
 			boost::filesystem::directory_iterator endIterator;
 			//generate new key
-			std::string pubFileName = inst + "-key" + std::to_string(keyStorage.getCurrentKey()) + ".pub";
+			std::string pubFileName =  "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub";
 			system(std::string("touch " + pubFileName).c_str());
 			std::cout << "pubFileName " << pubFileName << std::endl;
 			while (dirIterator != endIterator)
@@ -158,7 +158,7 @@ void cCmdInterp::cmdReadLoop()
 					{
 						std::cout << fileName << std::endl;
 						// sign
-						keyStorage.RSASignFile(fileName, mOutDir + inst + "-" + fileName + ".sig", false);
+						keyStorage.RSASignFile(fileName, mOutDir + "-" + fileName + ".sig", false);
 					}
 				}
 				
@@ -170,12 +170,12 @@ void cCmdInterp::cmdReadLoop()
 			keyStorage.RemoveRSAKey();
 			keyStorage.RSASignFile(pubFileName, mOutDir + pubFileName + ".sig", true);	// sign key
 			
-			std::cout << "tar cf wav_files.tar " + inst + "*" << std::endl;
+			//std::cout << "tar cf wav_files.tar " + inst + "*" << std::endl;
 			system(std::string("mv *.pub " + mOutDir).c_str());
 			system(std::string("mv *.sig2 " + mOutDir).c_str());
 			system(std::string("mv *.wav " + mOutDir).c_str());
 			//system(std::string("mv *.txt " + mOutDir).c_str());
-			system(std::string("tar czf " + inst + ".tar.gz " + mOutDir).c_str());
+			//system(std::string("tar czf " + inst + ".tar.gz " + mOutDir).c_str());
 			//system(std::string().c_str());
 		}
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
