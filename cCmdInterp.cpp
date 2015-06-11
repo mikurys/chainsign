@@ -35,19 +35,20 @@ void cCmdInterp::cmdReadLoop()
 			std::string path; // input dir
 			//system(std::string("touch " + pubFileName).c_str());
 			std::cout << "pubFileName " << pubFileName << std::endl;
+			
 			// get filename
 			inputFIFO.open("fifo");
 			std::getline(inputFIFO, line);
 			if (!boost::filesystem::exists(line)) 
 			{
 				std::cout << "No found " << line << std::endl;
-				system("rm *.pub");
+				//system("rm *.pub");
 				continue;
 			}
 			
 			std::cout << "sign file " << line << std::endl;
-			std::cout << "cp " << line << " to ." << std::endl;
-			system(std::string("cp " + line + " .").c_str());
+			//std::cout << "cp " << line << " to ." << std::endl;
+			//system(std::string("cp " + line + " .").c_str());
 			auto it = line.end();
 			while (*it != '/')
 				it--;
@@ -74,22 +75,25 @@ void cCmdInterp::cmdReadLoop()
 			std::cout << "Sign last key" << std::endl;
 			std::cout << "Last key name: " << pubFileName << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
+			
 			keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName); // XXX
-			keyStorage.RSASignFile(file, mOutDir + "-" + file + ".sig", false); // sign file
-			keyStorage.RSASignFile(mOutDir + pubFileName, mOutDir + pubFileName + ".sig", true);	// sign key
+			//keyStorage.RSASignFile(file, mOutDir + "-" + file + ".sig", false); // sign file
+			//keyStorage.RSASignFile(mOutDir + pubFileName, mOutDir + pubFileName + ".sig", true);	// sign key
+			keyStorage.RSASignNormalFile(file, file + ".sig"); // sign file
+			keyStorage.RSASignNormalFile(mOutDir + pubFileName, mOutDir + pubFileName + ".sig");
 			
 			//keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName); // XXX
 			keyStorage.RemoveRSAKey(); // XXX
 			//system(std::string("mv *.sig2 " + mOutDir).c_str());
-			system(std::string("cp *.sig2 " + mOutDir).c_str());
-			system(std::string("cp *.sig " + path).c_str());
-			system(std::string("cp *.pub " + path).c_str());
+			//system(std::string("cp *.sig2 " + mOutDir).c_str());
+			//system(std::string("cp *.sig " + path).c_str());
+			//system(std::string("cp *.pub " + path).c_str());
 			//system("rm *.pub");
 			
 			std::cout << "outDir " << outDir << std::endl;
-			std::cout << "create archive" << std::endl;
-			std::cout << std::string("tar zcvf " + path +  outDir + ".tar.gz " + outDir) << std::endl;
-			system(std::string("tar zcvf " + path + outDir + ".tar.gz " + outDir).c_str());
+			//std::cout << "create archive" << std::endl;
+			//std::cout << std::string("tar zcvf " + path +  outDir + ".tar.gz " + outDir) << std::endl;
+			//system(std::string("tar zcvf " + path + outDir + ".tar.gz " + outDir).c_str());
 		}
 		else if(line == "VERIFY-FILE")
 		{
