@@ -15,9 +15,12 @@ void cCmdInterp::cmdReadLoop()
 {
 	std::string line;
 	std::cout << "start cmdReadLoop" << std::endl;
-	std::cout << "mOutDir = " << mOutDir << std::endl;
-	mOutDir.clear();
-	keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub"); // generate 1st key
+	//std::cout << "mOutDir = " << mOutDir << std::endl;
+	mOutDir.clear(); // TODO rm mOutDir
+	if (keyStorage.getCurrentKey() == 1) {
+		keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub"); // generate 1st key
+	}
+	
 	while (1)
 	{
         std::cout << "loop" << std::endl;
@@ -82,8 +85,8 @@ void cCmdInterp::cmdReadLoop()
 			keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName); // XXX
 			//keyStorage.RSASignFile(file, mOutDir + "-" + file + ".sig", false); // sign file
 			//keyStorage.RSASignFile(mOutDir + pubFileName, mOutDir + pubFileName + ".sig", true);	// sign key
-			keyStorage.RSASignNormalFile(file, file + ".sig"); // sign file
-			keyStorage.RSASignNormalFile(pubFileName, pubFileName + ".sig");
+			keyStorage.RSASignNormalFile(file, file + ".sig", false); // sign file
+			keyStorage.RSASignNormalFile(pubFileName, pubFileName + ".sig", true); // sign key
 			
 			//keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName); // XXX
 			keyStorage.RemoveRSAKey(); // XXX
@@ -140,7 +143,7 @@ void cCmdInterp::cmdReadLoop()
 			if (ok && fileOK)
 				std::cout << "File OK" << std::endl;
 		}*/
-		else if(line == "SIGN-NEXTKEY-WAV-FILES")
+		/*else if(line == "SIGN-NEXTKEY-WAV-FILES")
 		{
 			std::cout << "SIGN-NEXTKEY-WAV-FILES" << std::endl;
 			boost::filesystem::directory_iterator dirIterator(".");
@@ -183,7 +186,7 @@ void cCmdInterp::cmdReadLoop()
 			//system(std::string("mv *.txt " + mOutDir).c_str());
 			//system(std::string("tar czf " + inst + ".tar.gz " + mOutDir).c_str());
 			//system(std::string().c_str());
-		}
+		}*/
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
     //std::cout << "loop end" << std::endl;

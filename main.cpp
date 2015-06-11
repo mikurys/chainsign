@@ -37,13 +37,13 @@ enum parser {
 
 void printHelp() {
 	cout << "examples: " << endl;
-	cout << "./chainsign --daemon name_of_instance out_dir" << endl;
-	cout << "./chainsign --verify-chain 1st_pub_key --move out_dir" << endl;
-	cout << "./chainsign --verify sig_file" << endl;
+	cout << "./chainsign --daemon" << endl;
+	//cout << "./chainsign --verify-chain 1st_pub_key --move out_dir" << endl;
+	cout << "./chainsign --verify [file]" << endl;
 
-	cout << "./chainsign --daemon my_instance ." << endl;
-	cout << "./chainsign --verify-chain my_instance-key1.pub --move good_keys" << endl;
-	cout << "./chainsign --verify-file sig_file" << endl;
+	//cout << "./chainsign --daemon my_instance ." << endl;
+	//cout << "./chainsign --verify-chain my_instance-key1.pub --move good_keys" << endl;
+	//cout << "./chainsign --verify-file sig_file" << endl;
 
 }
 
@@ -76,6 +76,7 @@ int main(int argc, char* argv[]) {
 		desc.add_options()
 		("help", "print help messages")
 		("daemon", "run as daemon mode")
+		("continue", "[prv_file_name]")
 		("verify-chain", "[key.pub] [good_keys] verify keys and move them to good-key")
 		("verify-file", "[sig_file]")
 		("client", "[command]");
@@ -105,6 +106,18 @@ int main(int argc, char* argv[]) {
 				cmdInterp.cmdReadLoop();
 			}
 
+			if (vm.count("continue")) {
+				assert(argc == 3);
+				auto fifoFile = mkfifo(fifo.c_str(), 0666);
+				if (fifoFile == -1) cout << "problem with creating fifo" << endl;
+
+				cCmdInterp cmdInterp(fifo);
+				//cmdInterp.setOutDir(std::string(argv[3]));
+				cmdInterp.keyStorage.loadRSAPrivKey(argv[2]);
+				std::cout << "start loop" << std::endl;
+				cmdInterp.cmdReadLoop();
+			}
+			
 			if (vm.count("verify-chain")) {
 				assert(argc == 5);
 
@@ -127,7 +140,6 @@ int main(int argc, char* argv[]) {
 				clientCmd(fifo,cmd);
 
 				return 0;
-
 			}
 
 			/*

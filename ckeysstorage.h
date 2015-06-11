@@ -18,6 +18,7 @@ class cKeysStorage
 {
 public:
     cKeysStorage();
+	cKeysStorage(const std::string &privateKeyFilename);
 	~cKeysStorage();
     void RSASignFile(const std::string& messageFilename, const std::string& signatureFilename, bool signKey);
     bool RSAVerifyFile(const std::string &sigFileName);
@@ -27,7 +28,7 @@ public:
 	void saveRSAPrivKey() const;
 	void loadRSAPrivKey(std::string filename); // filename == for example "key_1.prv"
 	// new format
-	void RSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename);
+	void RSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename, bool signKey);
 	bool RSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename);
 private:
     std::map <int, CryptoPP::RSA::PrivateKey> mPrvKeys;

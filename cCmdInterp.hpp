@@ -14,9 +14,9 @@ public:
 	unsigned int verify(std::string firstKey);
 	void setOutDir(std::string outDir);
 	unsigned int verifyOneFile(std::string fileName);
+	cKeysStorage keyStorage;
 private:
 	std::ifstream inputFIFO;
-	cKeysStorage keyStorage;
 	std::string mOutDir;
 };
 

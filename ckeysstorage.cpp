@@ -21,6 +21,11 @@ cKeysStorage::cKeysStorage()
 {
 }
 
+cKeysStorage::cKeysStorage(const std::string& privateKeyFilename) {
+	loadRSAPrivKey(privateKeyFilename);
+}
+
+
 cKeysStorage::~cKeysStorage()
 {
 	saveRSAPrivKey();
@@ -283,10 +288,13 @@ void cKeysStorage::loadRSAPrivKey(std::string filename) {
 	filename.erase(filename.size() - 4); // 1
 	keyNumber = std::stoi(filename);
 	mPrvKeys.insert(std::pair<int, CryptoPP::RSA::PrivateKey>(keyNumber, prvKey));
+	mCurrentKey = keyNumber + 1;
 }
 
 
-void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename) {
+void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename, bool signKey) {
+	if (signKey)
+		--mCurrentKey;
 	// load data from input file to string
 	std::string strContents;
     FileSource(inputFilename.c_str(), true, new StringSink(strContents));
@@ -315,6 +323,8 @@ void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std
 	//std::cout << std::endl;
 	// save to sig file
 	outFile.write((const char*)sbbSignature.data(), sbbSignature.size());
+	if (signKey)
+		++mCurrentKey;
 }
 
 bool cKeysStorage::RSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename) {
