@@ -301,7 +301,9 @@ bool cKeysStorage::RSAVerifyNormalFile(const std::string& inputFilename, const s
 	unsigned int signatureSize;
 	sigFile >> signatureSize;
 	// load sigature data
+	char a; // '\n'
 	std::shared_ptr<char> signature(new char[signatureSize]);
+	sigFile.read(&a, 1);
 	sigFile.read(signature.get(), signatureSize);
 	//std::cout << "signature" << std::endl;
 	//std::cout << signature.get();
@@ -317,11 +319,24 @@ bool cKeysStorage::RSAVerifyNormalFile(const std::string& inputFilename, const s
 	CryptoPP::RSA::PublicKey loadPubKey = loadPubFile(pubFileName);
 	RSASSA_PKCS1v15_SHA_Verifier verifier(loadPubKey);
 	
-	std::cout << "Singature" << std::endl;
-	std::cout.write(signature.get(), signatureSize);
-	std::cout << std::endl;
+	//std::cout << "Singature size " <<  << std::endl;
+	//std::cout << "Singature" << std::endl;
+	//std::cout.write(signature.get(), signatureSize);
+	//std::cout << std::endl;
 	
-	return true;
+	try
+	{
+		StringSource(combined, true, 
+			new SignatureVerificationFilter(verifier, NULL, SignatureVerificationFilter::THROW_EXCEPTION) );
+		std::cout << "Signature OK" << std::endl;
+		return true;
+	}
+	catch(SignatureVerificationFilter::SignatureVerificationFailed &err)
+	{
+		std::cout << "verify error " << err.what() << std::endl;
+		return false;
+	}
+	
 }
 
 
