@@ -4,6 +4,11 @@
 #include <fstream>
 #include <string>
 #include <csignal>
+#include <cstdlib>
+#include <thread>
+#include <mutex>
+#include <atomic>
+#include <memory>
 #include "ckeysstorage.h"
 
 class cCmdInterp // TODO singletone
@@ -20,7 +25,10 @@ public:
 private:
 	std::ifstream inputFIFO;
 	std::string mOutDir;
-	bool mStop = false;
+	std::atomic<bool> mStop;
+	std::unique_ptr<std::thread> mFifoReadThread;
+	std::string mFifoLine; // line form fifo, USE mFifoLineMutex !!!
+	std::mutex mFifoLineMutex;
 	static void signalHandler(int signum);
 	static cKeysStorage *sKeyStoragePtr;
 };

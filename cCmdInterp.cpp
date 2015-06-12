@@ -7,10 +7,32 @@
 
 #define KEY_SIZE 2048
 
-cCmdInterp::cCmdInterp(std::string pFifoName) {
+cCmdInterp::cCmdInterp(std::string pFifoName) :
+mStop(false)
+{
 	inputFIFO.open(pFifoName);
 	signal(SIGINT, cCmdInterp::signalHandler);
 	sKeyStoragePtr = &keyStorage;
+	mFifoReadThread.reset(new std::thread([this, &pFifoName]() {
+		std::cout << "start thread" << std::endl;
+		FILE *pFile;
+		pFile = fopen (pFifoName.c_str(), "r");
+		char line[256];
+		line[0] = '\0';
+		while (!mStop) {
+			fscanf(pFile, "%s", line);
+			if (line[0] != '\0') {
+				mFifoLineMutex.lock();
+				mFifoLine = line;
+				std::cout << "msg from FIFO: " << mFifoLine << std::endl;
+				line[0] = '\0';
+				std::cout << "msg from FIFO (cstr): " << line << std::endl;
+				mFifoLineMutex.unlock();
+			}
+			
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+	})); // thread lambda
 }
 
 void cCmdInterp::cmdReadLoop()
@@ -27,10 +49,14 @@ void cCmdInterp::cmdReadLoop()
 	{
         std::cout << "loop" << std::endl;
         // read command from fifo
-		inputFIFO.open("fifo");
-		std::getline(inputFIFO, line);
+		//inputFIFO.open("fifo");
+		//std::getline(inputFIFO, line);
         //std::cout << "line " << line << std::endl;
-		inputFIFO.close();
+		//inputFIFO.close();
+		mFifoLineMutex.lock();
+		line = mFifoLine;
+		mFifoLineMutex.unlock();
+		
 		if (line == "QUIT")
 			break;
 		else if(line == "SIGN-NEXTKEY")
@@ -45,8 +71,16 @@ void cCmdInterp::cmdReadLoop()
 			std::cout << "pubFileName " << pubFileName << std::endl;
 			
 			// get filename
-			inputFIFO.open("fifo");
-			std::getline(inputFIFO, line);
+			//inputFIFO.open("fifo");
+			//std::getline(inputFIFO, line);
+			while (!mStop) {
+				mFifoLineMutex.lock();
+				if(line != mFifoLine) {
+					line = mFifoLine;
+					break;
+				}
+				mFifoLineMutex.unlock();
+			}
 			if (!boost::filesystem::exists(line)) 
 			{
 				std::cout << "No found " << line << std::endl;
@@ -189,7 +223,7 @@ void cCmdInterp::cmdReadLoop()
 			//system(std::string("tar czf " + inst + ".tar.gz " + mOutDir).c_str());
 			//system(std::string().c_str());
 		}*/
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
     //std::cout << "loop end" << std::endl;
 }
