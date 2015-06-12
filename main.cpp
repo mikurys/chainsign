@@ -77,9 +77,9 @@ int main(int argc, char* argv[]) {
 		("help", "print help messages")
 		("daemon", "run as daemon mode")
 		("continue", "[prv_file_name]")
-		("verify-chain", "[key.pub] [good_keys] verify keys and move them to good-key")
-		("verify-file", "[sig_file]")
-		("client", "[command]");
+		//("verify-chain", "[key.pub] [good_keys] verify keys and move them to good-key")
+		("verify-file", "[sig_file]");
+		//("client", "[command]");
 
 		po::variables_map vm;
 		po::store(po::parse_command_line(argc, argv, desc), vm);
