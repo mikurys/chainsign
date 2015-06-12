@@ -82,6 +82,7 @@ void cCmdInterp::cmdReadLoop()
 				//std::cout << "lock" << std::endl;
 				mFifoLineMutex.lock();
 				if(line != mFifoLine) {
+					line.clear();
 					line = mFifoLine;
 					std::cout << "filename: " << line << std::endl;
 					//std::cout << "unlock" << std::endl;
