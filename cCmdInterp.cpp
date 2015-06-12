@@ -22,11 +22,13 @@ cCmdInterp::cCmdInterp(std::string pFifoName) {
 			std::cout << "FIFO loop" << std::endl;
 			fscanf(pFile, "%s", line);
 			if (line[0] != '\0') {
+				//std::cout << "lock" << std::endl;
 				mFifoLineMutex.lock();
 				mFifoLine = line;
 				std::cout << "msg from FIFO: " << mFifoLine << std::endl;
 				line[0] = '\0';
 				std::cout << "msg from FIFO (cstr): " << line << std::endl;
+				//std::cout << "unlock" << std::endl;
 				mFifoLineMutex.unlock();
 			}
 			
@@ -53,8 +55,10 @@ void cCmdInterp::cmdReadLoop()
 		//std::getline(inputFIFO, line);
         //std::cout << "line " << line << std::endl;
 		//inputFIFO.close();
+		//std::cout << "lock" << std::endl;
 		mFifoLineMutex.lock();
 		line = mFifoLine;
+		//std::cout << "unlock" << std::endl;
 		mFifoLineMutex.unlock();
 		
 		if (line == "QUIT")
@@ -75,13 +79,16 @@ void cCmdInterp::cmdReadLoop()
 			//std::getline(inputFIFO, line);
 			while (!mStop) {
 				std::cout << "loop in SIGN-NEXTKEY (waitning for filename)" << std::endl;
+				//std::cout << "lock" << std::endl;
 				mFifoLineMutex.lock();
 				if(line != mFifoLine) {
 					line = mFifoLine;
 					std::cout << "filename: " << line << std::endl;
+					//std::cout << "unlock" << std::endl;
 					mFifoLineMutex.unlock();
 					break;
 				}
+				mFifoLineMutex.unlock();
 				std::this_thread::sleep_for(std::chrono::seconds(1)); // XXX
 			}
 			if (!boost::filesystem::exists(line)) 
@@ -115,7 +122,7 @@ void cCmdInterp::cmdReadLoop()
 			//system(std::string("cp " + line + " " + outDir).c_str()); // cp file to out dir(archive)
 			std::cout << "out path" << mOutDir + "-" + line + ".sig" << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
-			system(std::string("cp " + line + " .").c_str()); // cp file co current dir
+			//system(std::string("cp " + line + " .").c_str()); // cp file co current dir
 			
 			std::cout << "Sign last key" << std::endl;
 			std::cout << "Last key name: " << pubFileName << std::endl;
@@ -324,8 +331,9 @@ unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = sig fi
 }
 
 void cCmdInterp::signalHandler(int signum) {
-	std::cout << "signalHandler" << std::endl;
+	//std::cout << "signalHandler" << std::endl;
 	mStop = true;
+	//exit(signum); // XXX
 }
 
 cKeysStorage* cCmdInterp::sKeyStoragePtr = nullptr;
