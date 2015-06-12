@@ -19,20 +19,20 @@ cCmdInterp::cCmdInterp(std::string pFifoName) {
 		line[0] = '\0';
 		std::cout << "start FIFO LOOP" << std::endl;
 		while (!mStop) {
-			std::cout << "FIFO loop" << std::endl;
+			//std::cout << "FIFO loop" << std::endl;
 			fscanf(pFile, "%s", line);
 			if (line[0] != '\0') {
 				//std::cout << "lock" << std::endl;
 				mFifoLineMutex.lock();
 				mFifoLine = line;
-				std::cout << "msg from FIFO: " << mFifoLine << std::endl;
+				//std::cout << "msg from FIFO: " << mFifoLine << std::endl;
 				line[0] = '\0';
-				std::cout << "msg from FIFO (cstr): " << line << std::endl;
+				//std::cout << "msg from FIFO (cstr): " << line << std::endl;
 				//std::cout << "unlock" << std::endl;
 				mFifoLineMutex.unlock();
 			}
 			
-			std::this_thread::sleep_for(std::chrono::seconds(1));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 	})); // thread lambda
 }
@@ -49,7 +49,7 @@ void cCmdInterp::cmdReadLoop()
 	
 	while (!mStop)
 	{
-        std::cout << "loop" << std::endl;
+        //std::cout << "loop" << std::endl;
         // read command from fifo
 		//inputFIFO.open("fifo");
 		//std::getline(inputFIFO, line);
@@ -78,7 +78,7 @@ void cCmdInterp::cmdReadLoop()
 			//inputFIFO.open("fifo");
 			//std::getline(inputFIFO, line);
 			while (!mStop) {
-				std::cout << "loop in SIGN-NEXTKEY (waitning for filename)" << std::endl;
+				//std::cout << "loop in SIGN-NEXTKEY (waitning for filename)" << std::endl;
 				//std::cout << "lock" << std::endl;
 				mFifoLineMutex.lock();
 				if(line != mFifoLine) {
@@ -90,7 +90,7 @@ void cCmdInterp::cmdReadLoop()
 					break;
 				}
 				mFifoLineMutex.unlock();
-				std::this_thread::sleep_for(std::chrono::seconds(1)); // XXX
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
 			if (!boost::filesystem::exists(line)) 
 			{
@@ -234,7 +234,7 @@ void cCmdInterp::cmdReadLoop()
 			//system(std::string("tar czf " + inst + ".tar.gz " + mOutDir).c_str());
 			//system(std::string().c_str());
 		}*/
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 	keyStorage.saveRSAPrivKey();
     //std::cout << "loop end" << std::endl;
@@ -321,7 +321,7 @@ unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = sig fi
 	if (ret == -1)
 		return 2;
 	
-	std::cout << "file name " << fileName << std::endl;
+	std::cout << "file name " << fileName << " using " << fileName + ".sig" << std::endl;
 	ret = keyStorage.RSAVerifyNormalFile(fileName, fileName + ".sig");
 	//std::cout << ret << std::endl;
 	if (ret == 0)
