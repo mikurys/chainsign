@@ -25,7 +25,7 @@ public:
 private:
 	std::ifstream inputFIFO;
 	std::string mOutDir;
-	std::atomic<bool> mStop;
+	static std::atomic<bool> mStop;
 	std::unique_ptr<std::thread> mFifoReadThread;
 	std::string mFifoLine; // line form fifo, USE mFifoLineMutex !!!
 	std::mutex mFifoLineMutex;

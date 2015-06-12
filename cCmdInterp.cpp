@@ -7,10 +7,8 @@
 
 #define KEY_SIZE 2048
 
-cCmdInterp::cCmdInterp(std::string pFifoName) :
-mStop(false)
-{
-	inputFIFO.open(pFifoName);
+cCmdInterp::cCmdInterp(std::string pFifoName) {
+	//inputFIFO.open(pFifoName);
 	signal(SIGINT, cCmdInterp::signalHandler);
 	sKeyStoragePtr = &keyStorage;
 	mFifoReadThread.reset(new std::thread([this, &pFifoName]() {
@@ -19,7 +17,9 @@ mStop(false)
 		pFile = fopen (pFifoName.c_str(), "r");
 		char line[256];
 		line[0] = '\0';
+		std::cout << "start FIFO LOOP" << std::endl;
 		while (!mStop) {
+			std::cout << "FIFO loop" << std::endl;
 			fscanf(pFile, "%s", line);
 			if (line[0] != '\0') {
 				mFifoLineMutex.lock();
@@ -74,12 +74,15 @@ void cCmdInterp::cmdReadLoop()
 			//inputFIFO.open("fifo");
 			//std::getline(inputFIFO, line);
 			while (!mStop) {
+				std::cout << "loop in SIGN-NEXTKEY (waitning for filename)" << std::endl;
 				mFifoLineMutex.lock();
 				if(line != mFifoLine) {
 					line = mFifoLine;
+					std::cout << "filename: " << line << std::endl;
+					mFifoLineMutex.unlock();
 					break;
 				}
-				mFifoLineMutex.unlock();
+				std::this_thread::sleep_for(std::chrono::seconds(1)); // XXX
 			}
 			if (!boost::filesystem::exists(line)) 
 			{
@@ -225,6 +228,7 @@ void cCmdInterp::cmdReadLoop()
 		}*/
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
+	keyStorage.saveRSAPrivKey();
     //std::cout << "loop end" << std::endl;
 }
 
@@ -321,8 +325,8 @@ unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = sig fi
 
 void cCmdInterp::signalHandler(int signum) {
 	std::cout << "signalHandler" << std::endl;
-	sKeyStoragePtr->saveRSAPrivKey();
-	exit(signum);
+	mStop = true;
 }
 
 cKeysStorage* cCmdInterp::sKeyStoragePtr = nullptr;
+std::atomic<bool> cCmdInterp::mStop(false);
