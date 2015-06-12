@@ -30,7 +30,6 @@ private:
 	std::string mFifoLine; // line form fifo, USE mFifoLineMutex !!!
 	std::mutex mFifoLineMutex;
 	static void signalHandler(int signum);
-	static cKeysStorage *sKeyStoragePtr;
 };
 
 #endif

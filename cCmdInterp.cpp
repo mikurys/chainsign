@@ -10,7 +10,6 @@
 cCmdInterp::cCmdInterp(std::string pFifoName) {
 	//inputFIFO.open(pFifoName);
 	signal(SIGINT, cCmdInterp::signalHandler);
-	sKeyStoragePtr = &keyStorage;
 	mFifoReadThread.reset(new std::thread([this, &pFifoName]() {
 		std::cout << "start thread" << std::endl;
 		FILE *pFile;
@@ -337,5 +336,4 @@ void cCmdInterp::signalHandler(int signum) {
 	//exit(signum); // XXX
 }
 
-cKeysStorage* cCmdInterp::sKeyStoragePtr = nullptr;
 std::atomic<bool> cCmdInterp::mStop(false);
