@@ -49,7 +49,7 @@ void cKeysStorage::GenerateRSAKey(unsigned int keyLength, std::string fileName)
 	
 	mCurrentKey++;
 	
-    std::cout << "end of GenerateRSAKey" << std::endl;
+  std::cout << "end of GenerateRSAKey. mCurrentKey=" << mCurrentKey << std::endl;
 }
 
 bool cKeysStorage::RSAVerifyFile(const std::string &sigFileName) // load .sig file

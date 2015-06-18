@@ -9,9 +9,14 @@
 
 cCmdInterp::cCmdInterp(std::string pFifoName) {
 	//inputFIFO.open(pFifoName);
-	signal(SIGINT, cCmdInterp::signalHandler);
+
+	if (0) {
+	  std::cout << "Installing signal handler" << std::endl;
+		signal(SIGINT, cCmdInterp::signalHandler);
+	}
+
 	mFifoReadThread.reset(new std::thread([this, &pFifoName]() {
-		std::cout << "start thread" << std::endl;
+		std::cout << "Starting FIFO thread" << std::endl;
 		FILE *pFile;
 		pFile = fopen (pFifoName.c_str(), "r");
 		char line[256];
@@ -24,22 +29,26 @@ cCmdInterp::cCmdInterp(std::string pFifoName) {
 				//std::cout << "lock" << std::endl;
 				mFifoLineMutex.lock();
 				mFifoLine = line;
-				//std::cout << "msg from FIFO: " << mFifoLine << std::endl;
+				
+				std::cout << "msg from FIFO: " << mFifoLine << std::endl;
+
 				line[0] = '\0';
 				//std::cout << "msg from FIFO (cstr): " << line << std::endl;
 				//std::cout << "unlock" << std::endl;
 				mFifoLineMutex.unlock();
-			}
+			} // process line
 			
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		}
-	})); // thread lambda
+			std::this_thread::sleep_for(std::chrono::milliseconds(5));
+		} // the loop
+		std::cout << "Ended FIFO thread" << std::endl;
+	} // the thread function
+	)); // thread lambda
 }
 
 void cCmdInterp::cmdReadLoop()
 {
 	std::string line;
-	std::cout << "start cmdReadLoop" << std::endl;
+	std::cout << "Starting main loop cmdReadLoop" << std::endl;
 	//std::cout << "mOutDir = " << mOutDir << std::endl;
 	mOutDir.clear(); // TODO rm mOutDir
 	if (keyStorage.getCurrentKey() == 1) {
@@ -80,61 +89,66 @@ void cCmdInterp::cmdReadLoop()
 				//std::cout << "loop in SIGN-NEXTKEY (waitning for filename)" << std::endl;
 				//std::cout << "lock" << std::endl;
 				mFifoLineMutex.lock();
-				if(line != mFifoLine) {
+				if(line != mFifoLine) { // waiting for the file name line
 					line.clear();
 					line = mFifoLine;
 					std::cout << "filename: " << line << std::endl;
 					//std::cout << "unlock" << std::endl;
 					mFifoLineMutex.unlock();
-					break;
+					break; // ok got the file-name lone
 				}
 				mFifoLineMutex.unlock();
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				std::this_thread::sleep_for(std::chrono::milliseconds(5));
 			}
-			if (!boost::filesystem::exists(line)) 
+			auto target_filename = line;
+
+			if (!boost::filesystem::exists(target_filename)) 
 			{
-				std::cout << "No found " << line << std::endl;
+				std::cout << "File not found " << target_filename << std::endl;
 				//system("rm *.pub");
 				continue;
 			}
 			
-			std::cout << "sign file " << line << std::endl;
-			//std::cout << "cp " << line << " to ." << std::endl;
-			//system(std::string("cp " + line + " .").c_str());
-			auto it = line.end();
+			std::cout << "sign file " << target_filename << std::endl;
+			//std::cout << "cp " << target_filename << " to ." << std::endl;
+			//system(std::string("cp " + target_filename + " .").c_str());
+			auto it = target_filename.end();
 			while (*it != '/')
 				it--;
-			auto it2 = line.begin();
+			auto it2 = target_filename.begin();
 			while (it2 != it + 1)
 			{
 				path += *it2;
 				it2++;
 			}
 			std::cout << "path: " << path << std::endl;
-			line.erase(line.begin(), it + 1);
-			//std::string outDir = line;
-			std::string file(line);
+			target_filename.erase(target_filename.begin(), it + 1);
+			//std::string outDir = target_filename;
+			std::string file(line); // <-- the more finall version of the file to sign
 			std::cout << "FILE: " << file << std::endl;
 			//outDir.erase(outDir.end() - 4, outDir.end());
 			//std::cout << "outDir " << outDir << std::endl;
 			//setOutDir(outDir);
-			std::cout << "current file: " << line << std::endl;
-			//system(std::string("cp " + line + " " + outDir).c_str()); // cp file to out dir(archive)
-			std::cout << "out path" << mOutDir + "-" + line + ".sig" << std::endl;
+			std::cout << "current file: " << target_filename << std::endl;
+			//system(std::string("cp " + target_filename + " " + outDir).c_str()); // cp file to out dir(archive)
+			std::cout << "out path" << mOutDir + "-" + target_filename + ".sig" << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
-			//system(std::string("cp " + line + " .").c_str()); // cp file co current dir
+			//system(std::string("cp " + target_filename + " .").c_str()); // cp file co current dir
 			
 			std::cout << "Sign last key" << std::endl;
 			std::cout << "Last key name: " << pubFileName << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
 			
 			keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName); // XXX
+			std::cout << "Generated the key" << std::endl;
+
 			//keyStorage.RSASignFile(file, mOutDir + "-" + file + ".sig", false); // sign file
 			//keyStorage.RSASignFile(mOutDir + pubFileName, mOutDir + pubFileName + ".sig", true);	// sign key
 			keyStorage.RSASignNormalFile(file, file + ".sig", false); // sign file
 			keyStorage.RSASignNormalFile(pubFileName, pubFileName + ".sig", true); // sign key
 			
 			//keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName); // XXX
+			std::cout << "removing the previous key" << std::endl;
 			keyStorage.RemoveRSAKey(); // XXX
 			//system(std::string("mv *.sig2 " + mOutDir).c_str());
 			//system(std::string("cp *.sig2 " + mOutDir).c_str());
@@ -146,6 +160,7 @@ void cCmdInterp::cmdReadLoop()
 			//std::cout << "create archive" << std::endl;
 			//std::cout << std::string("tar zcvf " + path +  outDir + ".tar.gz " + outDir) << std::endl;
 			//system(std::string("tar zcvf " + path + outDir + ".tar.gz " + outDir).c_str());
+			std::cout << "done the command to sign next key/file" << std::endl;
 		}
 /*		else if(line == "VERIFY-FILE")
 		{
@@ -233,10 +248,12 @@ void cCmdInterp::cmdReadLoop()
 			//system(std::string("tar czf " + inst + ".tar.gz " + mOutDir).c_str());
 			//system(std::string().c_str());
 		}*/
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
 	}
+	std::cout << "Ended the main loop cmdReadLoop" << std::endl;
+
 	keyStorage.saveRSAPrivKey();
-    //std::cout << "loop end" << std::endl;
+	std::cout << "Exiting the main loop cmdReadLoop" << std::endl;
 }
 
 
@@ -263,7 +280,7 @@ unsigned int cCmdInterp::verify(std::string firstKey) // verify keys, get name o
 	int keyNumber = 2;
 	std::string fileName;
 	
-	std::cout << "start loop" << std::endl; 
+	std::cout << "Starting verification loop" << std::endl; 
 	unsigned int lastGoodKey = 1;
 	while (good) {
 		fileName = prefixKeyName + std::to_string(keyNumber) + suffixKeyName;
@@ -292,6 +309,7 @@ unsigned int cCmdInterp::verify(std::string firstKey) // verify keys, get name o
 		}
 		keyNumber++;
 	}
+	std::cout << "Done verification loop" << std::endl; 
 	
 	std::cout << "Last good key: " << lastGoodKey << std::endl;
 	if (lastGoodKey > 1)
