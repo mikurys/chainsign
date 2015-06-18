@@ -253,6 +253,7 @@ void cKeysStorage::RSASignFile(const std::string& messageFilename, const std::st
 	
 	if (signKey)
 		++mCurrentKey;
+		std::cout << "increased. mCurrentKey="<<mCurrentKey<<std::endl;
 		
 	std::cout << "end of RSASignFile" << std::endl;
 }
@@ -261,6 +262,10 @@ void cKeysStorage::RemoveRSAKey()
 {
 	if (mCurrentKey == 1)
 		return;
+	
+	auto oldkey = mPrvKeys.begin();
+	std::cout << "Will remove key at index: " << oldkey->first << " mCurrentKey="<<mCurrentKey << std::endl ;
+
 	mPrvKeys.erase(mPrvKeys.begin());
 	std::cout << "private keys in memory " << mPrvKeys.size() << std::endl;
 }
@@ -297,8 +302,12 @@ void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std
 	// load data from input file to string
 	std::string strContents;
     FileSource(inputFilename.c_str(), true, new StringSink(strContents));
+
 	//std::cout << "data from " << inputFilename << std::endl;
-	std::cout << strContents << std::endl;
+	//std::cout << strContents << std::endl;
+	std::cout << "Size of data to sign: " << strContents.size() << std::endl;
+
+
 	// generate pubFile name
 	const std::string pubKeyFilename("key_" + std::to_string(mCurrentKey - 1) + ".pub");
 	//std::cout << "pub key filename " << pubKeyFilename << std::endl;
@@ -322,8 +331,11 @@ void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std
 	//std::cout << std::endl;
 	// save to sig file
 	outFile.write((const char*)sbbSignature.data(), sbbSignature.size());
-	if (signKey)
+	if (signKey) {
+		std::cout << "Rotating the key as requested" << std::endl;
 		++mCurrentKey;
+	}
+	std::cout << "Done sign" << std::endl;
 }
 
 bool cKeysStorage::RSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename) {
