@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
 		("daemon", "run as daemon mode")
 		("continue", "[prv_file_name]")
 		//("verify-chain", "[key.pub] [good_keys] verify keys and move them to good-key")
-		("verify-file", "[sig_file]");
+		("verify-file", "[file]");
 		//("client", "[command]");
 
 		po::variables_map vm;

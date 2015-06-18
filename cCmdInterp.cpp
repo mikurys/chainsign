@@ -348,16 +348,20 @@ unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = sig fi
 	// TODO improve signature... N*N checks?  this re-checks from start
 	
 	unsigned int ret = verify(firstPubKey); // verify keys
-	if (ret == -1)
+	if (ret == -1) {
+		std::cout << "***keys verification error***" << std::endl;
 		return 2;
+	}
 	
 	std::cout << "file name " << fileName << " using " << fileName + ".sig" << std::endl;
 	ret = keyStorage.RSAVerifyNormalFile(fileName, fileName + ".sig");
 	//std::cout << ret << std::endl;
-	if (ret == 0)
+	if (ret == 0) {
+		std::cout << "***file verification error***" << std::endl;
 		return 3;
+	}
 	
-	std::cout << "OK" << std::endl;	
+	std::cout << "OK" << std::endl;
 	return 0;
 }
 
