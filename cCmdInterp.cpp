@@ -242,7 +242,7 @@ void cCmdInterp::cmdReadLoop()
 
 unsigned int cCmdInterp::verify(std::string firstKey) // verify keys, get name of 1st pub file, return last good key
 {
-	std::cout << "start verify keys" << std::endl;
+	std::cout << "Starting verification of key chain." << std::endl;
 	//std::ifstream pubFile;
 	//system(std::string("cp " + firstKey + " " + mOutDir + firstKey).c_str()); // copy 1st key to out dir
 /*	
@@ -255,6 +255,8 @@ unsigned int cCmdInterp::verify(std::string firstKey) // verify keys, get name o
 		firstKey.erase(firstKey.begin());
 	}
 */
+
+	// parse the file name. Make sure it matches this function descr.
 	const std::string prefixKeyName("key_"); // key_1.pub, key_2.pub ...
 	const std::string suffixKeyName(".pub");
 	bool good = true;
@@ -270,19 +272,23 @@ unsigned int cCmdInterp::verify(std::string firstKey) // verify keys, get name o
 		pubFile.open(fileName);
 		if(!pubFile.good()) // no file
 		{
-			std::cout << "No found " << fileName << std::endl;
+			std::cout << "File not found: " << fileName << " so the chain ended at keyNumber="<<keyNumber<<" and last good was lastGoodKey="<<lastGoodKey<<  std::endl;
 			break;
 		}
 		
-		std::cout << "start verify " << fileName << std::endl;
+		std::cout << "Verifying: " << fileName << std::endl;
 		//good = keyStorage.RSAVerifyFile(fileName);
 		good = keyStorage.RSAVerifyNormalFile(fileName, fileName + ".sig");
 		//RSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename);
 		if (good) {
 			lastGoodKey = keyNumber;
+			std::cout << "Verifying: " << fileName << " was correctly signed" << std::endl;
 			//std::cout << "mv cmd " << "mv " + fileName + " " + mOutDir + fileName << std::endl;
 			//fileName.erase(fileName.end() - 4, fileName.end()); // rm ".sig"
 			//system(std::string("cp " + fileName + " " + mOutDir + fileName).c_str());
+		}
+		else {
+			
 		}
 		keyNumber++;
 	}
@@ -293,8 +299,12 @@ unsigned int cCmdInterp::verify(std::string firstKey) // verify keys, get name o
 		std::cout << "OK" << std::endl;
 		return lastGoodKey;
 	}
-	else
+	else {
+		std::cout << "\n\n" << "***************************************************************" << std::endl;
+		std::cout << "Chain verification totally failed: there was no good signature of next key" << std::endl;
+		std::cout << "\n\n" << "***************************************************************" << std::endl;
 		return -1;
+	}
 }
 
 void cCmdInterp::setOutDir(std::string outDir)
@@ -315,6 +325,9 @@ unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = sig fi
 	
 	std::cout << "Start keys verification" << std::endl;
 	std::cout << "first pub key " << firstPubKey << std::endl;
+	
+
+	// TODO improve signature... N*N checks?  this re-checks from start
 	
 	unsigned int ret = verify(firstPubKey); // verify keys
 	if (ret == -1)
@@ -337,3 +350,5 @@ void cCmdInterp::signalHandler(int signum) {
 }
 
 std::atomic<bool> cCmdInterp::mStop(false);
+
+

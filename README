@@ -27,3 +27,13 @@ echo "QUIT" > fifo
 comands in daemon mode:
 SIGN-NEXTKEY - next command in fifo is name of file, sign one file
 QUIT - close program
+
+
+=== TODO ===
+
+Optimize the verification:
+loop should be in the program:
+1. loop over all keys, find where keychain ends
+2. loop over all files, check if they are signed properly, and are they signed with the pubkeys, and are the signing keys < the last good keychain key
+
+
