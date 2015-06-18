@@ -279,6 +279,9 @@ void cKeysStorage::saveRSAPrivKey() const{
 }
 
 void cKeysStorage::loadRSAPrivKey(std::string filename) {
+	if (!boost::filesystem::exists(filename)) {
+		throw std::runtime_error("open file error");
+	}
 	CryptoPP::RSA::PrivateKey prvKey;
 	ByteQueue bytes;
 	FileSource prvKeyFile(filename.c_str(), true, new Base64Decoder);

@@ -5,6 +5,9 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <exception>
+
+#include <boost/filesystem.hpp>
 
 #include <crypto++/rsa.h>
 #include <crypto++/osrng.h>

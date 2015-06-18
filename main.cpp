@@ -113,7 +113,14 @@ int main(int argc, char* argv[]) {
 
 				cCmdInterp cmdInterp(fifo);
 				//cmdInterp.setOutDir(std::string(argv[3]));
-				cmdInterp.keyStorage.loadRSAPrivKey(argv[2]);
+				std::cout << "Start using " << argv[2] << std::endl;
+				try {
+					cmdInterp.keyStorage.loadRSAPrivKey(argv[2]);
+				}
+				catch (...) {
+					std::cout << "******* ERROR load RSA priv key *******" << std::endl;
+					std::cout << "start using new key" << std::endl;
+				}
 				std::cout << "start loop" << std::endl;
 				cmdInterp.cmdReadLoop();
 			}
