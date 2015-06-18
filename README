@@ -4,8 +4,7 @@ Daemon mode:
 	mkfifo fifo 
 	
 2) run:
-./chainsign --daemon name_of_instance out_dir
-example:	./chainsign --daemon my_instance .
+./chainsign --daemon
 
 3) write command to fifo:
 START
@@ -21,15 +20,10 @@ QUIT
 
 example:
 echo "START" > fifo
-echo "SIGN-NEXTKEY-WAV-FILES" > fifo
 echo "SIGN-NEXTKEY" > fifo
 echo "file1" > fifo
-echo "VERIFY-FILE" > fifo
-echo "file1.sig" > fifo
 echo "QUIT" > fifo
 
 comands in daemon mode:
-SIGN-NEXTKEY-WAV-FILES - sign all *.wav files in current dir, mv files to our dir, create tar.gz archive
 SIGN-NEXTKEY - next command in fifo is name of file, sign one file
-VERIFY-FILE - next command in fifo is name of *.sig file, verify one file
 QUIT - close program
