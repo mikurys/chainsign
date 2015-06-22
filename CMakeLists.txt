@@ -7,6 +7,6 @@ find_package(OpenSSL REQUIRED)
 #LIST(APPEND ADDITIONAL_LIBS ${OPENSSL_LIBRARIES})
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
-target_link_libraries(${PROJECT_NAME} crypto cryptopp boost_system boost_filesystem boost_program_options pthread)
+target_link_libraries(${PROJECT_NAME} crypto cryptopp boost_system boost_filesystem boost_program_options pthread rt)
 
 add_subdirectory(send_msg)
