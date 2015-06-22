@@ -7,7 +7,22 @@
 
 #define KEY_SIZE 2048
 
-cCmdInterp::cCmdInterp(std::string pFifoName) {
+cCmdInterp::cCmdInterp() :
+mMsgQueue(boost::interprocess::open_or_create,
+	"chainsign",
+	MAX_MESSAGE_NUMBER,
+	MAX_MESSAGE_SIZE * sizeof(char)
+)
+{
+}
+
+cCmdInterp::cCmdInterp(std::string pFifoName) :
+mMsgQueue(boost::interprocess::open_or_create,
+	pFifoName.c_str(),
+	MAX_MESSAGE_NUMBER,
+	MAX_MESSAGE_SIZE * sizeof(char)
+)
+{
 	//inputFIFO.open(pFifoName);
 
 	if (0) {

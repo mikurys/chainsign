@@ -9,13 +9,17 @@
 #include <mutex>
 #include <atomic>
 #include <memory>
+#include <boost/interprocess/ipc/message_queue.hpp>
 #include "ckeysstorage.h"
+
+#define MAX_MESSAGE_SIZE 256
+#define MAX_MESSAGE_NUMBER 100
 
 // TODO singletone ? not sure.
 
 class cCmdInterp {
 	public:
-		cCmdInterp() = default;
+		cCmdInterp();
 
 		cCmdInterp(std::string pFifoName); ///< ready to read commands from the file
 
@@ -42,8 +46,11 @@ class cCmdInterp {
 		std::unique_ptr<std::thread> mFifoReadThread;
 		std::string mFifoLine; // line form fifo, USE mFifoLineMutex !!!
 		std::mutex mFifoLineMutex;
+		boost::interprocess::message_queue mMsgQueue;
+		std::string getCmdFromMsgQueue(); ///< receive one message form mMsgQueue
 
 		static void signalHandler(int signum); ///< react to event like ctrl-C key, sets flag to exit
+		
 };
 
 #endif

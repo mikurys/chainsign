@@ -4,6 +4,7 @@
 #include <boost/interprocess/ipc/message_queue.hpp>
 
 #define MAX_MESSAGE_SIZE 256
+#define MAX_MESSAGE_NUMBER 100
 
 // ./send_msg queue_name message_string
 int main(int argc, char *argv[]) {
@@ -11,7 +12,7 @@ int main(int argc, char *argv[]) {
 	boost::interprocess::message_queue msg_queue(
 		boost::interprocess::open_or_create,
 		argv[1],	// queue name
-		100,	// max message number
+		MAX_MESSAGE_NUMBER,	// max message number
 		MAX_MESSAGE_SIZE * sizeof(char)	//max message size
 	);
 	
