@@ -17,6 +17,7 @@ mMsgQueue(boost::interprocess::open_or_create,
 }
 
 cCmdInterp::cCmdInterp(std::string pFifoName) :
+mMsgQueueName(pFifoName),
 mMsgQueue(boost::interprocess::open_or_create,
 	pFifoName.c_str(),
 	MAX_MESSAGE_NUMBER,
@@ -24,13 +25,17 @@ mMsgQueue(boost::interprocess::open_or_create,
 )
 {
 	//inputFIFO.open(pFifoName);
-
 	if (0) {
 	  std::cout << "Installing signal handler" << std::endl;
 		signal(SIGINT, cCmdInterp::signalHandler);
 	}
-
 }
+
+cCmdInterp::~cCmdInterp()
+{
+	boost::interprocess::message_queue::remove(mMsgQueueName.c_str());
+}
+
 
 void cCmdInterp::cmdReadLoop()
 {
@@ -71,26 +76,8 @@ void cCmdInterp::cmdReadLoop()
 			std::string path; // input dir
 			//system(std::string("touch " + pubFileName).c_str());
 			std::cout << "pubFileName " << pubFileName << std::endl;
-			
-			// get filename
-			//inputFIFO.open("fifo");
-			//std::getline(inputFIFO, line);
-			/*while (!mStop) {
-				//std::cout << "loop in SIGN-NEXTKEY (waitning for filename)" << std::endl;
-				//std::cout << "lock" << std::endl;
-				mFifoLineMutex.lock();
-				if(line != mFifoLine) { // waiting for the file name line
-					line.clear();
-					line = mFifoLine;
-					std::cout << "filename: " << line << std::endl;
-					//std::cout << "unlock" << std::endl;
-					mFifoLineMutex.unlock();
-					break; // ok got the file-name lone
-				}
-				mFifoLineMutex.unlock();
-				std::this_thread::sleep_for(std::chrono::milliseconds(5));
-			}*/
-			
+
+			// get filename			
 			std::cout << "load filename" << std::endl;
 			auto target_filename = getCmdFromMsgQueue();
 			std::cout << "filename = " << target_filename << std::endl;
@@ -105,17 +92,23 @@ void cCmdInterp::cmdReadLoop()
 			std::cout << "sign file " << target_filename << std::endl;
 			//std::cout << "cp " << target_filename << " to ." << std::endl;
 			//system(std::string("cp " + target_filename + " .").c_str());
-			auto it = target_filename.end();
-			while (*it != '/')
-				it--;
-			auto it2 = target_filename.begin();
-			while (it2 != it + 1)
-			{
-				path += *it2;
-				it2++;
+			if (target_filename.find('/') != std::string::npos) {
+				auto it = target_filename.end();
+				while (*it != '/')
+					it--;
+				auto it2 = target_filename.begin();
+				while (it2 != it + 1) {
+					path += *it2;
+					it2++;
+				}
+				target_filename.erase(target_filename.begin(), it + 1);
+			}
+			else {
+				std::cout << "ERROR filename = " << target_filename << std::endl;
+				std::cout << "use full path" << std::endl;
+				continue;
 			}
 			std::cout << "path: " << path << std::endl;
-			target_filename.erase(target_filename.begin(), it + 1);
 			//std::string outDir = target_filename;
 			std::string file(target_filename); // <-- the more finall version of the file to sign
 			std::cout << "FILE: " << file << std::endl;

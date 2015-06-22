@@ -20,8 +20,8 @@
 class cCmdInterp {
 	public:
 		cCmdInterp();
-
 		cCmdInterp(std::string pFifoName); ///< ready to read commands from the file
+		~cCmdInterp();
 
 		void cmdReadLoop(); ///< main loop - wait/read/parse commands
 
@@ -47,7 +47,8 @@ class cCmdInterp {
 		std::string mFifoLine; // line form fifo, USE mFifoLineMutex !!!
 		std::mutex mFifoLineMutex;
 		boost::interprocess::message_queue mMsgQueue;
-		std::string getCmdFromMsgQueue(); ///< receive one message form mMsgQueue
+		std::string mMsgQueueName;
+		std::string getCmdFromMsgQueue(); ///< receive one message form mMsgQueue, calling thread is blocked if mMsgQueue is empty
 
 		static void signalHandler(int signum); ///< react to event like ctrl-C key, sets flag to exit
 		
