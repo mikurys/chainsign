@@ -30,34 +30,6 @@ mMsgQueue(boost::interprocess::open_or_create,
 		signal(SIGINT, cCmdInterp::signalHandler);
 	}
 
-	mFifoReadThread.reset(new std::thread([this, &pFifoName]() {
-		std::cout << "Starting FIFO thread" << std::endl;
-		FILE *pFile;
-		pFile = fopen (pFifoName.c_str(), "r");
-		char line[256];
-		line[0] = '\0';
-		std::cout << "start FIFO LOOP" << std::endl;
-		while (!mStop) {
-			//std::cout << "FIFO loop" << std::endl;
-			fscanf(pFile, "%s", line);
-			if (line[0] != '\0') {
-				//std::cout << "lock" << std::endl;
-				mFifoLineMutex.lock();
-				mFifoLine = line;
-				
-				std::cout << "msg from FIFO: " << mFifoLine << std::endl;
-
-				line[0] = '\0';
-				//std::cout << "msg from FIFO (cstr): " << line << std::endl;
-				//std::cout << "unlock" << std::endl;
-				mFifoLineMutex.unlock();
-			} // process line
-			
-			std::this_thread::sleep_for(std::chrono::milliseconds(5));
-		} // the loop
-		std::cout << "Ended FIFO thread" << std::endl;
-	} // the thread function
-	)); // thread lambda
 }
 
 void cCmdInterp::cmdReadLoop()
@@ -145,7 +117,7 @@ void cCmdInterp::cmdReadLoop()
 			std::cout << "path: " << path << std::endl;
 			target_filename.erase(target_filename.begin(), it + 1);
 			//std::string outDir = target_filename;
-			std::string file(line); // <-- the more finall version of the file to sign
+			std::string file(target_filename); // <-- the more finall version of the file to sign
 			std::cout << "FILE: " << file << std::endl;
 			//outDir.erase(outDir.end() - 4, outDir.end());
 			//std::cout << "outDir " << outDir << std::endl;
