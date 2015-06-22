@@ -321,7 +321,7 @@ void cCmdInterp::setOutDir(std::string outDir)
 	//std::cout << "out dir: " << mOutDir << std::endl;
 }
 
-unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = sig file
+unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = file
 {
 	
 	//std::cout << "RSAVerifyFile " << keyStorage.RSAVerifyFile(fileName, instance) << std::endl;
@@ -349,7 +349,7 @@ unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = sig fi
 	}
 	
 	std::cout << "OK" << std::endl;
-	return 0;
+	return 1;
 }
 
 std::string cCmdInterp::getCmdFromMsgQueue() {
