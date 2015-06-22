@@ -37,6 +37,7 @@ class cKeysStorage {
 
 			
 			/*** 
+			 * Old format
 			 * Signs a disk file with given name. Write signature to signatureFilename.
 			 * If signKey==true, then we are signing a new signature file (so we use the key that now is known as previous key)
 			 * and normally with signKey==false we are just signing with the current key.
@@ -44,6 +45,7 @@ class cKeysStorage {
 			void RSASignFile(const std::string& messageFilename, const std::string& signatureFilename, bool signKey);
 
 			/***
+			 * Old format
 			 * Verifies a single signature. The data file is written in signature.
 			*/
 			bool RSAVerifyFile(const std::string &sigFileName);
