@@ -47,8 +47,7 @@ void cCmdInterp::cmdReadLoop()
 		keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub"); // generate 1st key
 	}
 	
-	while (!mStop)
-	{
+	while (!mStop) {
         //std::cout << "loop" << std::endl;
         // read command from fifo
 		//inputFIFO.open("fifo");
@@ -66,8 +65,8 @@ void cCmdInterp::cmdReadLoop()
 		
 		if (line == "QUIT")
 			break;
-		else if(line == "SIGN-NEXTKEY")
-		{
+		
+		else if(line == "SIGN-NEXTKEY") {
 			std::cout << "SIGN-NEXTKEY" << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
 			std::cout << std::endl;
@@ -81,17 +80,16 @@ void cCmdInterp::cmdReadLoop()
 			std::cout << "load filename" << std::endl;
 			auto target_filename = getCmdFromMsgQueue();
 			std::cout << "filename = " << target_filename << std::endl;
-
-			if (!boost::filesystem::exists(target_filename)) 
-			{
+			if (!boost::filesystem::exists(target_filename)) {
 				std::cout << "File not found " << target_filename << std::endl;
 				//system("rm *.pub");
 				continue;
 			}
-			
+
 			std::cout << "sign file " << target_filename << std::endl;
 			//std::cout << "cp " << target_filename << " to ." << std::endl;
 			//system(std::string("cp " + target_filename + " .").c_str());
+			std::string fullPath(target_filename); // full path to file (/home/user/file.txt)
 			if (target_filename.find('/') != std::string::npos) {
 				auto it = target_filename.end();
 				while (*it != '/')
@@ -109,6 +107,7 @@ void cCmdInterp::cmdReadLoop()
 				continue;
 			}
 			std::cout << "path: " << path << std::endl;
+			std::cout << "fullPath " << fullPath << std::endl;
 			//std::string outDir = target_filename;
 			std::string file(target_filename); // <-- the more finall version of the file to sign
 			std::cout << "FILE: " << file << std::endl;
@@ -125,12 +124,15 @@ void cCmdInterp::cmdReadLoop()
 			std::cout << "Last key name: " << pubFileName << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
 			
-			keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName); // XXX
+			keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName);
 			std::cout << "Generated the key" << std::endl;
 
 			//keyStorage.RSASignFile(file, mOutDir + "-" + file + ".sig", false); // sign file
 			//keyStorage.RSASignFile(mOutDir + pubFileName, mOutDir + pubFileName + ".sig", true);	// sign key
-			keyStorage.RSASignNormalFile(file, file + ".sig", false); // sign file
+			std::cout << "start sign file" << fullPath << std::endl;
+			keyStorage.RSASignNormalFile(fullPath, fullPath + ".sig", false); // sign file
+// 			keyStorage.RSASignNormalFile(file, file + ".sig", false); // sign file
+			std::cout << "start sign key " << pubFileName << std::endl;
 			keyStorage.RSASignNormalFile(pubFileName, pubFileName + ".sig", true); // sign key
 			
 			//keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName); // XXX
@@ -234,7 +236,6 @@ void cCmdInterp::cmdReadLoop()
 			//system(std::string("tar czf " + inst + ".tar.gz " + mOutDir).c_str());
 			//system(std::string().c_str());
 		}*/
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
 	}
 	std::cout << "Ended the main loop cmdReadLoop" << std::endl;
 
