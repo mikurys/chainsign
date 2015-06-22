@@ -389,6 +389,26 @@ bool cKeysStorage::RSAVerifyNormalFile(const std::string& inputFilename, const s
 	
 }
 
+std::string cKeysStorage::getFilepath(const std::string& filePath) {
+	std::string path;
+	if (filePath.find('/') == std::string::npos) {
+		std::cout << "path = ?" << std::endl;
+		assert(path.size() == 0);
+		return path;
+	}
+	else {
+		path = filePath;
+		std::string::iterator it = path.end();
+		it--;
+		while (*it != '/') {
+			path.erase(it);
+			it--;
+		}
+		std::cout << "path = " << path << std::endl;
+		return path;
+	}
+}
+
 
 /*
 .pub format:

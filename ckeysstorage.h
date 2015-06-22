@@ -72,6 +72,12 @@ class cKeysStorage {
 			void savePubFile(unsigned int numberOfKey, const CryptoPP::RSA::PublicKey& pPubKey, std::string fileName); ///< saves a public key to file
 			CryptoPP::RSA::PublicKey loadPubFile(std::string pubKey); ///< returns a loaded from disk public key
 
+			/***
+			 * for filePath == /home/user/dir/file.txt returns /home/user/dir/
+			 * for filePath == file.txt returns empty string
+			 */
+			std::string getFilepath(const std::string &filePath);
+			
 		// void savePrivKey();
 		unsigned int mCurrentKey; ///< number of current key. Related to the numbers in mPrvKeys.
 
