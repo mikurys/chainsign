@@ -79,10 +79,13 @@ void cCmdInterp::cmdReadLoop()
         //std::cout << "line " << line << std::endl;
 		//inputFIFO.close();
 		//std::cout << "lock" << std::endl;
-		mFifoLineMutex.lock();
+		
+		/*mFifoLineMutex.lock();
 		line = mFifoLine;
 		//std::cout << "unlock" << std::endl;
-		mFifoLineMutex.unlock();
+		mFifoLineMutex.unlock();*/
+		std::cout << "load cmd from mas queue" << std::endl;
+		line = getCmdFromMsgQueue();
 		
 		if (line == "QUIT")
 			break;
@@ -100,7 +103,7 @@ void cCmdInterp::cmdReadLoop()
 			// get filename
 			//inputFIFO.open("fifo");
 			//std::getline(inputFIFO, line);
-			while (!mStop) {
+			/*while (!mStop) {
 				//std::cout << "loop in SIGN-NEXTKEY (waitning for filename)" << std::endl;
 				//std::cout << "lock" << std::endl;
 				mFifoLineMutex.lock();
@@ -114,8 +117,11 @@ void cCmdInterp::cmdReadLoop()
 				}
 				mFifoLineMutex.unlock();
 				std::this_thread::sleep_for(std::chrono::milliseconds(5));
-			}
-			auto target_filename = line;
+			}*/
+			
+			std::cout << "load filename" << std::endl;
+			auto target_filename = getCmdFromMsgQueue();
+			std::cout << "filename = " << target_filename << std::endl;
 
 			if (!boost::filesystem::exists(target_filename)) 
 			{
@@ -379,6 +385,19 @@ unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = sig fi
 	std::cout << "OK" << std::endl;
 	return 0;
 }
+
+std::string cCmdInterp::getCmdFromMsgQueue() {
+	char receiveMsg[MAX_MESSAGE_SIZE];
+	boost::interprocess::message_queue::size_type recv_size;
+	unsigned int priority;
+	mMsgQueue.receive(static_cast<void *>(receiveMsg), MAX_MESSAGE_SIZE, recv_size, priority);
+	std::string receiveMsgStr(receiveMsg, recv_size);
+	std::cout << "receiveMsgStr: " << receiveMsgStr << std::endl;
+	std::cout << "recv_size " << recv_size << std::endl;
+	std::cout << "priority " << priority << std::endl;
+	return receiveMsgStr;
+}
+
 
 void cCmdInterp::signalHandler(int signum) {
 	//std::cout << "signalHandler" << std::endl;
