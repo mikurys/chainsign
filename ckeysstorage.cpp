@@ -270,9 +270,9 @@ void cKeysStorage::RemoveRSAKey()
 	std::cout << "private keys in memory " << mPrvKeys.size() << std::endl;
 }
 
-void cKeysStorage::saveRSAPrivKey() const{
+void cKeysStorage::saveRSAPrivKey(const std::string &path) const {
 	std::cout << "save private key nr " << mPrvKeys.begin()->first << std::endl;
-	const std::string outFilename("key_" + std::to_string(mPrvKeys.begin()->first) + ".prv"); // save first priv key from map
+	const std::string outFilename(path + "key_" + std::to_string(mPrvKeys.begin()->first) + ".prv"); // save first priv key from map
 	Base64Encoder prvkeysink(new FileSink(outFilename.c_str()));
 	mPrvKeys.begin()->second.DEREncode(prvkeysink);
 	prvkeysink.MessageEnd();
@@ -289,10 +289,21 @@ void cKeysStorage::loadRSAPrivKey(std::string filename) {
 	bytes.MessageEnd();
 	prvKey.Load(bytes);
 	// generate key number from filename
+	std::cout << "parse prv key number" << std::endl;
+	if (filename.find('/') != std::string::npos) {
+		std::string::iterator it = filename.end();
+		while (*it != '/') {
+			it--;
+		}
+		filename.erase(filename.begin(), it);
+		std::cout << "prv filename = " << filename << std::endl;
+	}
+	filename.erase(filename.begin()); // /key_1.prv
 	unsigned int keyNumber;
 	// key_1.prv
 	filename.erase(0, 4); // 1.prv
 	filename.erase(filename.size() - 4); // 1
+	std::cout << "number = " << filename << std::endl;
 	keyNumber = std::stoi(filename);
 	mPrvKeys.insert(std::pair<int, CryptoPP::RSA::PrivateKey>(keyNumber, prvKey));
 	mCurrentKey = keyNumber + 1;

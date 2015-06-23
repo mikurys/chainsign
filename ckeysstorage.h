@@ -59,7 +59,7 @@ class cKeysStorage {
 
 			void RemoveRSAKey(); ///< forget the current private key
 
-		void saveRSAPrivKey() const;
+		void saveRSAPrivKey(const std::string &path) const;
 		void loadRSAPrivKey(std::string filename); // filename == for example "key_1.prv"
 		// new format
 		void RSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename, bool signKey);

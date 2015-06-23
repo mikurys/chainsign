@@ -10,6 +10,8 @@
 #include <atomic>
 #include <memory>
 #include <boost/interprocess/ipc/message_queue.hpp>
+#include <sys/types.h>
+#include <pwd.h>
 #include "ckeysstorage.h"
 
 #define MAX_MESSAGE_SIZE 256
@@ -41,6 +43,7 @@ class cCmdInterp {
 		std::ifstream inputFIFO; ///< get commands from here
 
 		std::string mOutDir;
+		std::string mKeyDir;
 		static std::atomic<bool> mStop;
 
 		//std::unique_ptr<std::thread> mFifoReadThread;

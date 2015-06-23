@@ -24,6 +24,11 @@ mMsgQueue(boost::interprocess::open_or_create,
 	MAX_MESSAGE_SIZE * sizeof(char)
 )
 {
+	struct passwd *pw = getpwuid(getuid());
+	mKeyDir = std::string(pw->pw_dir) + std::string("/keys/");
+	std::cout << "create dir for keys" << std::endl;
+	std::cout << "key dir = " << mKeyDir << std::endl;
+	boost::filesystem::create_directory(mKeyDir);
 	//inputFIFO.open(pFifoName);
 	if (0) {
 	  std::cout << "Installing signal handler" << std::endl;
@@ -44,7 +49,7 @@ void cCmdInterp::cmdReadLoop()
 	//std::cout << "mOutDir = " << mOutDir << std::endl;
 	mOutDir.clear(); // TODO rm mOutDir
 	if (keyStorage.getCurrentKey() == 1) {
-		keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub"); // generate 1st key
+		keyStorage.GenerateRSAKey(KEY_SIZE, mKeyDir + "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub"); // generate 1st key
 	}
 	
 	while (!mStop) {
@@ -70,7 +75,7 @@ void cCmdInterp::cmdReadLoop()
 			std::cout << "SIGN-NEXTKEY" << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
 			std::cout << std::endl;
-			std::string pubFileName = "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub";
+			std::string pubFileName = mKeyDir + "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub";
 			//std::string nextPubFileName = inst + "-key" + std::to_string(keyStorage.getCurrentKey() + 1) + ".pub";
 			std::string path; // input dir
 			//system(std::string("touch " + pubFileName).c_str());
@@ -116,7 +121,7 @@ void cCmdInterp::cmdReadLoop()
 			//setOutDir(outDir);
 			std::cout << "current file: " << target_filename << std::endl;
 			//system(std::string("cp " + target_filename + " " + outDir).c_str()); // cp file to out dir(archive)
-			std::cout << "out path" << mOutDir + "-" + target_filename + ".sig" << std::endl;
+			//std::cout << "out path" << mOutDir + "-" + target_filename + ".sig" << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
 			//system(std::string("cp " + target_filename + " .").c_str()); // cp file co current dir
 			
@@ -124,7 +129,7 @@ void cCmdInterp::cmdReadLoop()
 			std::cout << "Last key name: " << pubFileName << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
 			
-			keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName);
+			keyStorage.GenerateRSAKey(KEY_SIZE, pubFileName);
 			std::cout << "Generated the key" << std::endl;
 
 			//keyStorage.RSASignFile(file, mOutDir + "-" + file + ".sig", false); // sign file
@@ -239,7 +244,7 @@ void cCmdInterp::cmdReadLoop()
 	}
 	std::cout << "Ended the main loop cmdReadLoop" << std::endl;
 
-	keyStorage.saveRSAPrivKey();
+	keyStorage.saveRSAPrivKey(mKeyDir);
 	std::cout << "Exiting the main loop cmdReadLoop" << std::endl;
 }
 
