@@ -30,10 +30,15 @@ mMsgQueue(boost::interprocess::open_or_create,
 	std::cout << "key dir = " << mKeyDir << std::endl;
 	boost::filesystem::create_directory(mKeyDir);
 	//inputFIFO.open(pFifoName);
-	if (0) {
-	  std::cout << "Installing signal handler" << std::endl;
-		signal(SIGINT, cCmdInterp::signalHandler);
-	}
+	std::cout << "Installing signal handler" << std::endl;
+	signal(SIGINT, cCmdInterp::signalHandler);
+	mStopThread.reset(new std::thread([this]() {
+		while (!mStop) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		}
+		std::string quitMsg("QUIT");
+		mMsgQueue.send(quitMsg.c_str(), quitMsg.size(), 1);
+	}));
 }
 
 cCmdInterp::~cCmdInterp()
@@ -245,6 +250,8 @@ void cCmdInterp::cmdReadLoop()
 	std::cout << "Ended the main loop cmdReadLoop" << std::endl;
 
 	keyStorage.saveRSAPrivKey(mKeyDir);
+	std::cout << "Join thread" << std::endl;
+	mStopThread->join();
 	std::cout << "Exiting the main loop cmdReadLoop" << std::endl;
 }
 

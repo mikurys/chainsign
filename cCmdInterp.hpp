@@ -46,7 +46,7 @@ class cCmdInterp {
 		std::string mKeyDir;
 		static std::atomic<bool> mStop;
 
-		//std::unique_ptr<std::thread> mFifoReadThread;
+		std::unique_ptr<std::thread> mStopThread;
 		std::string mFifoLine; // line form fifo, USE mFifoLineMutex !!!
 		std::mutex mFifoLineMutex;
 		boost::interprocess::message_queue mMsgQueue;
