@@ -364,6 +364,45 @@ void cKeysStorage::loadRSAPrivKey(std::string filename) {
 	mCurrentKey = keyNumber + 1;
 }
 
+void cKeysStorage::loadECDSAPrivKey(std::string filename) {
+	if (!boost::filesystem::exists(filename)) {
+		throw std::runtime_error("open file error");
+	}
+	ECDSA<ECP, SHA512>::PrivateKey privateKey;
+	ByteQueue bytes;
+	std::cout << "start load prv key" << std::endl;
+	FileSource prvKeyFile(filename.c_str(), true, new Base64Decoder);
+	prvKeyFile.TransferTo(bytes);
+	bytes.MessageEnd();
+ 	std::cout << "load bytes" << std::endl;
+	privateKey.Load(bytes);
+	std::cout << "end of load prv key" << std::endl;
+	std::cout << "validate prv key " << std::endl;
+	if (privateKey.Validate(mRng, 3) == false) {
+		std::cout << "prv key validate error";
+		throw std::runtime_error("prv key: validate error");
+	}
+	std::cout << "parse key number" << std::endl;
+	std::cout << "parse prv key number" << std::endl;
+	if (filename.find('/') != std::string::npos) {
+		std::string::iterator it = filename.end();
+		while (*it != '/') {
+			it--;
+		}
+		filename.erase(filename.begin(), it);
+		std::cout << "prv filename = " << filename << std::endl;
+	}
+	filename.erase(filename.begin()); // /key_1.prv
+	unsigned int keyNumber;
+	// key_1.prv
+	filename.erase(0, 4); // 1.prv
+	filename.erase(filename.size() - 4); // 1
+	std::cout << "number = " << filename << std::endl;
+	keyNumber = std::stoi(filename);
+	mECDSAPrvKeys.insert(std::pair<int, ECDSA<ECP, SHA512>::PrivateKey>(keyNumber, privateKey));
+	mCurrentKey = keyNumber + 1;
+}
+
 
 void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename, bool signKey) {
 	if (signKey)
