@@ -473,6 +473,54 @@ bool cKeysStorage::RSAVerifyNormalFile(const std::string& inputFilename, const s
 	
 }
 
+
+bool cKeysStorage::ECDSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename) {
+	std::cout << "load " << signatureFilename << std::endl;
+	std::ifstream sigFile(signatureFilename);
+	std::string word;
+	sigFile >> word; // "PubKeyFilename"
+	std::string pubFileName;
+	sigFile >> pubFileName;
+	sigFile >> word; // "SignatureSize"
+	unsigned int signatureSize;
+	sigFile >> signatureSize;
+	
+	std::cout << "load raw signature" << std::endl;
+	std::shared_ptr<char> signature(new char[signatureSize]); // raw signature
+	char a;
+	sigFile.read(&a, 1); // read '\n'
+	sigFile.read(signature.get(), signatureSize);
+	std::cout << "end of load sig file" << std::endl;
+	
+	// load input file
+	std::cout << "start load clear file" << std::endl;
+	std::string sourceData;
+	FileSource(inputFilename.c_str(), true, new StringSink(sourceData));
+	std::string combined(sourceData);
+	combined.append(signature.get(), signatureSize);
+	ECDSA<ECP, SHA512>::PublicKey publicKey;
+	try {
+		publicKey = ECDSALoadPubKey(pubFileName);
+	}
+	catch (std::runtime_error ex) {
+		std::cout << "PUB KEY LOAD ERROR " << ex.what() << std::endl;
+		return false;
+	}
+	std::cout << "start verify" << std::endl;
+	ECDSA<ECP, SHA512>::Verifier verifier(publicKey);
+	try {
+		StringSource(combined, true,
+			new SignatureVerificationFilter(verifier, NULL, SignatureVerificationFilter::THROW_EXCEPTION));
+		std::cout << "verify OK" << std::endl;
+		return true;
+	}
+	catch (SignatureVerificationFilter::SignatureVerificationFailed &err) {
+		std::cout << "verify error " << err.what() << std::endl;
+		return false;
+	}
+}
+
+
 std::string cKeysStorage::getFilepath(const std::string& filePath) {
 	std::string path;
 	if (filePath.find('/') == std::string::npos) {
