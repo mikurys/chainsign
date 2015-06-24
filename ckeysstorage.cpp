@@ -312,6 +312,19 @@ void cKeysStorage::RemoveRSAKey()
 	std::cout << "private keys in memory " << mPrvKeys.size() << std::endl;
 }
 
+
+void cKeysStorage::RemoveECDSAKey() {
+	if (mCurrentKey == 1)
+		return;
+	
+	auto oldkey = mECDSAPrvKeys.begin();
+	std::cout << "Will remove ECDSA key at index: " << oldkey->first << " mCurrentKey = " << mCurrentKey << std::endl;
+
+	mECDSAPrvKeys.erase(mECDSAPrvKeys.begin());
+	std::cout << "private ECDSA keys in memory " << mECDSAPrvKeys.size() << std::endl;
+}
+
+
 void cKeysStorage::saveRSAPrivKey(const std::string &path) const {
 	std::cout << "save private key nr " << mPrvKeys.begin()->first << std::endl;
 	const std::string outFilename(path + "key_" + std::to_string(mPrvKeys.begin()->first) + ".prv"); // save first priv key from map

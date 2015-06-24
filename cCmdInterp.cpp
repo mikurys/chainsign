@@ -54,22 +54,10 @@ void cCmdInterp::cmdReadLoop()
 	//std::cout << "mOutDir = " << mOutDir << std::endl;
 	mOutDir.clear(); // TODO rm mOutDir
 	if (keyStorage.getCurrentKey() == 1) {
-		keyStorage.GenerateRSAKey(KEY_SIZE, mKeyDir + "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub"); // generate 1st key
+		keyStorage.GenerateECDSAKey(mKeyDir + "key_" + std::to_string(keyStorage.getCurrentKey()) + ".pub");
 	}
 	
 	while (!mStop) {
-        //std::cout << "loop" << std::endl;
-        // read command from fifo
-		//inputFIFO.open("fifo");
-		//std::getline(inputFIFO, line);
-        //std::cout << "line " << line << std::endl;
-		//inputFIFO.close();
-		//std::cout << "lock" << std::endl;
-		
-		/*mFifoLineMutex.lock();
-		line = mFifoLine;
-		//std::cout << "unlock" << std::endl;
-		mFifoLineMutex.unlock();*/
 		std::cout << "load cmd from mas queue" << std::endl;
 		line = getCmdFromMsgQueue();
 		
@@ -134,20 +122,20 @@ void cCmdInterp::cmdReadLoop()
 			std::cout << "Last key name: " << pubFileName << std::endl;
 			std::cout << "current key: " << keyStorage.getCurrentKey() << std::endl;
 			
-			keyStorage.GenerateRSAKey(KEY_SIZE, pubFileName);
+			keyStorage.GenerateECDSAKey(pubFileName);
 			std::cout << "Generated the key" << std::endl;
 
 			//keyStorage.RSASignFile(file, mOutDir + "-" + file + ".sig", false); // sign file
 			//keyStorage.RSASignFile(mOutDir + pubFileName, mOutDir + pubFileName + ".sig", true);	// sign key
 			std::cout << "start sign file" << fullPath << std::endl;
-			keyStorage.RSASignNormalFile(fullPath, fullPath + ".sig", false); // sign file
+			keyStorage.ECDSASignNormalFile(fullPath, fullPath + ".sig", false); // sign file
 // 			keyStorage.RSASignNormalFile(file, file + ".sig", false); // sign file
 			std::cout << "start sign key " << pubFileName << std::endl;
-			keyStorage.RSASignNormalFile(pubFileName, pubFileName + ".sig", true); // sign key
+			keyStorage.ECDSASignNormalFile(pubFileName, pubFileName + ".sig", true); // sign key
 			
 			//keyStorage.GenerateRSAKey(KEY_SIZE, mOutDir + pubFileName); // XXX
 			std::cout << "removing the previous key" << std::endl;
-			keyStorage.RemoveRSAKey(); // XXX
+			keyStorage.RemoveECDSAKey();
 			//system(std::string("mv *.sig2 " + mOutDir).c_str());
 			//system(std::string("cp *.sig2 " + mOutDir).c_str());
 			//system(std::string("cp *.sig " + path).c_str());
@@ -249,7 +237,7 @@ void cCmdInterp::cmdReadLoop()
 	}
 	std::cout << "Ended the main loop cmdReadLoop" << std::endl;
 
-	keyStorage.saveRSAPrivKey(mKeyDir);
+	keyStorage.saveECDSAPrivKey(mKeyDir);
 	std::cout << "Join thread" << std::endl;
 	mStopThread->join();
 	std::cout << "Exiting the main loop cmdReadLoop" << std::endl;

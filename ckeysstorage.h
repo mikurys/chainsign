@@ -61,6 +61,7 @@ class cKeysStorage {
 			unsigned int getCurrentKey() { return mCurrentKey; } ///< Returns the number of current key.
 
 			void RemoveRSAKey(); ///< forget the current private key
+			void RemoveECDSAKey(); ///< forget the current private key
 
 		void saveRSAPrivKey(const std::string &path) const; // path == for example /home/user/keys/key_123.prv
 		void loadRSAPrivKey(std::string filename); // filename == for example "key_1.prv"
