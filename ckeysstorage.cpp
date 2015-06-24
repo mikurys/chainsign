@@ -480,6 +480,8 @@ void cKeysStorage::ECDSASignNormalFile(const std::string& inputFilename, const s
 		sbbSignature);
 	std::cout << "Save result" << std::endl;
 	std::ofstream sig2File(signatureFilename);
+	sig2File << "sig_version 2" << std::endl;
+	sig2File << "crypto_type ECDSA" << std::endl;
 	sig2File << "PubKeyFilename " << pubKeyFilename << std::endl;
 	sig2File << "SignatureSize " << sbbSignature.size() << std::endl;
 	sig2File.write((const char*)sbbSignature.data(), sbbSignature.size());
@@ -543,6 +545,8 @@ bool cKeysStorage::ECDSAVerifyNormalFile(const std::string& inputFilename, const
 	std::cout << "load " << signatureFilename << std::endl;
 	std::ifstream sigFile(signatureFilename);
 	std::string word;
+	sigFile >> word; sigFile >> word; // sig_version
+	sigFile >> word; sigFile >> word; // crypto_type
 	sigFile >> word; // "PubKeyFilename"
 	std::string pubFileName;
 	sigFile >> pubFileName;
