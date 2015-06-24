@@ -14,6 +14,9 @@
 #include <crypto++/base64.h>
 #include <crypto++/files.h>
 #include <crypto++/hex.h>
+#include <crypto++/eccrypto.h>
+#include <crypto++/oids.h>
+#include <crypto++/files.h>
 
 using namespace CryptoPP;
 
@@ -64,15 +67,26 @@ class cKeysStorage {
 		// new format
 		void RSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename, bool signKey);
 		bool RSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename);
+		
+		///////////////ECDSA///////////////
+		/***
+		 * Generates a new key pair, save the pub key to a file.
+		*/
+		void GenerateECDSAKey(std::string fileName);
+		void ECDSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename, bool signKey);
+		bool ECDSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename);
 
 	private:
 			
 			std::map <int, CryptoPP::RSA::PrivateKey> mPrvKeys; ///< list of keys. we usually remember just the current and previous key; e.g. key nr 105 and 106
+			std::map <int, ECDSA<ECP, SHA512>::PrivateKey> mECDSAPrvKeys; ///< the same for ECDSA
 
 			/// The caller should operate on the public keys and hold them, e.g. hold variables with them during verification or during creation of chain
 			
-			void savePubFile(unsigned int numberOfKey, const CryptoPP::RSA::PublicKey& pPubKey, std::string fileName); ///< saves a public key to file
+			void savePubFile(unsigned int numberOfKey, const CryptoPP::RSA::PublicKey& pPubKey, std::string fileName); ///< saves a public key to file (RSA)
+			void savePubECDSAFile(unsigned int numberOfKey, const ECDSA<ECP, SHA512>::PublicKey& pPubKey, std::string fileName); ///< saves a public key to file (ECDSA)
 			CryptoPP::RSA::PublicKey loadPubFile(std::string pubKey); ///< returns a loaded from disk public key
+			ECDSA<ECP, SHA512>::PublicKey ECDSALoadPubKey(const std::string &pubKeyFilename); ///< returns a loaded from disk public key, throw exception if error
 
 			/***
 			 * for filePath == /home/user/dir/file.txt returns /home/user/dir/

@@ -52,6 +52,22 @@ void cKeysStorage::GenerateRSAKey(unsigned int keyLength, std::string fileName)
   std::cout << "end of GenerateRSAKey. mCurrentKey=" << mCurrentKey << std::endl;
 }
 
+void cKeysStorage::GenerateECDSAKey(std::string fileName) {
+	using namespace CryptoPP;
+	DL_GroupParameters_EC<ECP> params(ASN1::secp521r1());
+	ECDSA<ECP, SHA512>::PrivateKey privateKey;
+	ECDSA<ECP, SHA512>::PublicKey publicKey;
+	privateKey.Initialize(mRng, params);
+	privateKey.MakePublicKey(publicKey);
+	mECDSAPrvKeys[mCurrentKey] = privateKey;
+	std::cout << "start saving pub file" << std::endl;
+	std::cout << "generated file: " << fileName << std::endl;
+	savePubECDSAFile(mCurrentKey, publicKey, fileName);
+	mCurrentKey++;
+	
+	std::cout << "end of GenerateECDSAKey. mCurrentKey=" << mCurrentKey << std::endl;
+}
+
 bool cKeysStorage::RSAVerifyFile(const std::string &sigFileName) // load .sig file
 {
 	using namespace CryptoPP;
@@ -159,6 +175,17 @@ void cKeysStorage::savePubFile(unsigned int numberOfKey, const CryptoPP::RSA::Pu
     std::cout << "end of savePubFile" << std::endl;
 }
 
+void cKeysStorage::savePubECDSAFile(unsigned int numberOfKey, const ECDSA<ECP, SHA512>::PublicKey& pPubKey, std::string fileName) {
+	using namespace CryptoPP;
+    std::cout << "Save file: " << fileName << std::endl;
+	ByteQueue pubKeyBytes;
+	pPubKey.Save(pubKeyBytes);
+	Base64Encoder publicKeyEncoder(new FileSink(fileName.c_str()));
+	pubKeyBytes.CopyTo(publicKeyEncoder);
+	publicKeyEncoder.MessageEnd();
+	std::cout << fileName << " saved" << std::endl;
+}
+
 CryptoPP::RSA::PublicKey cKeysStorage::loadPubFile(std::string pPubKey)
 {
 	std::string fileName(pPubKey);
@@ -202,6 +229,21 @@ CryptoPP::RSA::PublicKey cKeysStorage::loadPubFile(std::string pPubKey)
 	std::cout << "end of loadPubFile" << std::endl;
 	
 	return pubKey;
+}
+
+ECDSA<ECP, SHA512>::PublicKey cKeysStorage::ECDSALoadPubKey(const std::string &pubKeyFilename) {
+	std::cout << "start load ECDSA pub key from " << pubKeyFilename << std::endl;
+	AutoSeededRandomPool rng;
+	CryptoPP::ByteQueue bytes;
+	ECDSA<ECP, SHA512>::PublicKey publicKey;
+	FileSource file(pubKeyFilename.c_str(), true, new Base64Decoder);
+	file.TransferTo(bytes);
+	bytes.MessageEnd();
+	publicKey.Load(bytes);
+	if (publicKey.Validate(rng, 3) == false) {
+		throw std::runtime_error("pub key verification error");
+	}
+	return publicKey;
 }
 
 //https://gist.github.com/TimSC/5251670
