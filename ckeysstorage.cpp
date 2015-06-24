@@ -363,7 +363,6 @@ void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std
 	//std::cout << strContents << std::endl;
 	std::cout << "Size of data to sign: " << strContents.size() << std::endl;
 
-
 	// generate pubFile name
 	const std::string pubKeyFilename("key_" + std::to_string(mCurrentKey - 1) + ".pub");
 	//std::cout << "pub key filename " << pubKeyFilename << std::endl;
@@ -387,6 +386,38 @@ void cKeysStorage::RSASignNormalFile(const std::string& inputFilename, const std
 	//std::cout << std::endl;
 	// save to sig file
 	outFile.write((const char*)sbbSignature.data(), sbbSignature.size());
+	if (signKey) {
+		std::cout << "Rotating the key as requested" << std::endl;
+		++mCurrentKey;
+	}
+	std::cout << "Done sign" << std::endl;
+}
+
+void cKeysStorage::ECDSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename, bool signKey) {
+	if (signKey) {
+		--mCurrentKey;
+	}
+	// load data from input file to string
+	std::cout << "load clear file " << inputFilename << std::endl;
+	std::string strContents;
+	FileSource(inputFilename.c_str(), true, new StringSink(strContents));
+	std::cout << "Size of data to sign: " << strContents.size() << std::endl;
+	const std::string pubKeyFilename("key_" + std::to_string(mCurrentKey - 1) + ".pub");
+	std::cout << "start save " << signatureFilename << std::endl;
+	std::ofstream outFile(signatureFilename);
+	outFile << "PubKeyFilename " << pubKeyFilename << std::endl;
+	ECDSA<ECP, SHA512>::Signer signer(mECDSAPrvKeys.at(mCurrentKey - 1));
+	SecByteBlock sbbSignature(signer.SignatureLength());
+	std::cout << "sign message" << std::endl;
+		signer.SignMessage(mRng,
+		reinterpret_cast<byte const*>(strContents.data()),
+		strContents.size(),
+		sbbSignature);
+	std::cout << "Save result" << std::endl;
+	std::ofstream sig2File(signatureFilename);
+	sig2File << "PubKeyFilename " << pubKeyFilename << std::endl;
+	sig2File << "SignatureSize " << sbbSignature.size() << std::endl;
+	sig2File.write((const char*)sbbSignature.data(), sbbSignature.size());
 	if (signKey) {
 		std::cout << "Rotating the key as requested" << std::endl;
 		++mCurrentKey;
