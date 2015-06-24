@@ -320,6 +320,19 @@ void cKeysStorage::saveRSAPrivKey(const std::string &path) const {
 	prvkeysink.MessageEnd();
 }
 
+
+void cKeysStorage::saveECDSAPrivKey(const std::string& path) const {
+	std::cout << "save private key nr " << mECDSAPrvKeys.begin()->first << std::endl;
+	const std::string outFilename(path + "key_" + std::to_string(mECDSAPrvKeys.begin()->first) + ".prv"); // save first priv key from map
+	ByteQueue prvKeyBytes;
+	mECDSAPrvKeys.begin()->second.Save(prvKeyBytes);
+	Base64Encoder prvKeyEncoder(new FileSink(outFilename.c_str()));
+	prvKeyBytes.CopyTo(prvKeyEncoder);
+	prvKeyEncoder.MessageEnd();
+}
+
+
+
 void cKeysStorage::loadRSAPrivKey(std::string filename) {
 	if (!boost::filesystem::exists(filename)) {
 		throw std::runtime_error("open file error");

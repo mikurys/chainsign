@@ -64,6 +64,9 @@ class cKeysStorage {
 
 		void saveRSAPrivKey(const std::string &path) const; // path == for example /home/user/keys/key_123.prv
 		void loadRSAPrivKey(std::string filename); // filename == for example "key_1.prv"
+		
+		void saveECDSAPrivKey(const std::string &path) const; // path == for example /home/user/keys/key_123.prv
+		void loadECDSAPrivKey(std::string filename); // filename == for example "key_1.prv"
 		// new format
 		void RSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename, bool signKey);
 		bool RSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename);
