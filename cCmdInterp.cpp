@@ -61,8 +61,10 @@ void cCmdInterp::cmdReadLoop()
 		std::cout << "load cmd from mas queue" << std::endl;
 		line = getCmdFromMsgQueue();
 		
-		if (line == "QUIT")
+		if (line == "QUIT") {
+			mStop = true;
 			break;
+		}
 		
 		else if(line == "SIGN-NEXTKEY") {
 			std::cout << "SIGN-NEXTKEY" << std::endl;
