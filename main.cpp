@@ -115,17 +115,17 @@ int main(int argc, char* argv[]) {
 				//cmdInterp.setOutDir(std::string(argv[3]));
 				std::cout << "Start using " << argv[2] << std::endl;
 				try {
-					cmdInterp.keyStorage.loadRSAPrivKey(argv[2]);
+					cmdInterp.keyStorage.loadECDSAPrivKey(argv[2]);
 				}
 				catch (...) {
-					std::cout << "******* ERROR load RSA priv key *******" << std::endl;
+					std::cout << "******* ERROR load priv key *******" << std::endl;
 					std::cout << "start using new key" << std::endl;
 				}
 				std::cout << "start loop" << std::endl;
 				cmdInterp.cmdReadLoop();
 			}
 			
-			if (vm.count("verify-chain")) {
+			/*if (vm.count("verify-chain")) {
 				assert(argc == 5);
 
 				cCmdInterp cmdInterp;
@@ -133,7 +133,7 @@ int main(int argc, char* argv[]) {
 				unsigned int ret = cmdInterp.verify(std::string(argv[2]));
 				if (ret == -1) return 2; // keys verification error
 				std::cout << "OK" << std::endl;
-			}
+			}*/
 
 			if (vm.count("verify-file")) {
 				assert(argc == 3);

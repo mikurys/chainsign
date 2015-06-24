@@ -284,7 +284,7 @@ unsigned int cCmdInterp::verify(std::string firstKey) // verify keys, get name o
 		
 		std::cout << "Verifying: " << fileName << std::endl;
 		//good = keyStorage.RSAVerifyFile(fileName);
-		good = keyStorage.RSAVerifyNormalFile(fileName, fileName + ".sig");
+		good = keyStorage.ECDSAVerifyNormalFile(fileName, fileName + ".sig");
 		//RSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename);
 		if (good) {
 			lastGoodKey = keyNumber;
@@ -343,7 +343,7 @@ unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = file
 	}
 	
 	std::cout << "file name " << fileName << " using " << fileName + ".sig" << std::endl;
-	ret = keyStorage.RSAVerifyNormalFile(fileName, fileName + ".sig");
+	ret = keyStorage.ECDSAVerifyNormalFile(fileName, fileName + ".sig");
 	//std::cout << ret << std::endl;
 	if (ret == 0) {
 		std::cout << "***file verification error***" << std::endl;
