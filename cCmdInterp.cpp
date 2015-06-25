@@ -263,9 +263,13 @@ unsigned int cCmdInterp::verify(const std::string &sigFile, std::string &keyPath
 */
 	// find first key
 	std::cout << "parse sig path: " << sigFile << std::endl;
-	const std::string sigFilePath = getPathFromFile(sigFile);
+	const std::string sigFilePath = getPathFromFile(sigFile) + "/";
 	std::cout << "path for sig file " << sigFilePath << std::endl;
 	const std::string homeKeyDir(getHomeDir() + "keys/");
+	std::cout << "start finding key_1.pub" << std::endl;
+	std::cout << homeKeyDir + "key_1.pub" << std::endl;
+	std::cout << sigFilePath + "key_1.pub" << std::endl;
+	std::cout << "key_1.pub" << std::endl;
 	if (boost::filesystem::exists(homeKeyDir + "key_1.pub")) { // check /home/keys/key_1.pub
 		std::cout << homeKeyDir + "key_1.pub" << " exists" << std::endl;
 		keyPath = std::move(homeKeyDir);
@@ -408,7 +412,7 @@ std::string cCmdInterp::getPathFromFile(std::string fullFilePath) {
 	while (*it != '/') {
 		it--;
 	}
-	fullFilePath.erase(fullFilePath.begin(), it);
+	fullFilePath.erase(it, fullFilePath.end());
 	return fullFilePath;
 }
 
