@@ -9,6 +9,7 @@
 #include <mutex>
 #include <atomic>
 #include <memory>
+#include <ctime>
 #include <boost/interprocess/ipc/message_queue.hpp>
 #include <boost/filesystem.hpp>
 #include <sys/types.h>
@@ -48,13 +49,12 @@ class cCmdInterp {
 		static std::atomic<bool> mStop;
 
 		std::unique_ptr<std::thread> mStopThread;
-		std::string mFifoLine; // line form fifo, USE mFifoLineMutex !!!
-		std::mutex mFifoLineMutex;
 		boost::interprocess::message_queue mMsgQueue;
 		std::string mMsgQueueName;
 		std::string getCmdFromMsgQueue(); ///< receive one message form mMsgQueue, calling thread is blocked if mMsgQueue is empty
 
 		static void signalHandler(int signum); ///< react to event like ctrl-C key, sets flag to exit
+		static bool mCrtlC;
 		static std::string getHomeDir(); ///< /home/user/
 		static std::string getPathFromFile(std::string fullFilePath); ///< /home/user/dir/file.txt => /home/user/dir/
 };

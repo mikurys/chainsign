@@ -242,6 +242,15 @@ void cCmdInterp::cmdReadLoop()
 	keyStorage.saveECDSAPrivKey(mKeyDir);
 	std::cout << "Join thread" << std::endl;
 	mStopThread->join();
+	if (mCrtlC) {
+		std::cout << "CTRL+C, start save log file" << std::endl;
+		std::ofstream logFile(getHomeDir() + "chainsign.log", std::ios::app);
+		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+		std::time_t tt;
+		tt = std::chrono::system_clock::to_time_t(now);
+		logFile << "CTRL + C " << std::ctime(&tt);
+		logFile << "last key " << keyStorage.getCurrentKey() << std::endl;
+	}
 	std::cout << "Exiting the main loop cmdReadLoop" << std::endl;
 }
 
@@ -394,7 +403,7 @@ std::string cCmdInterp::getCmdFromMsgQueue() {
 void cCmdInterp::signalHandler(int signum) {
 	//std::cout << "signalHandler" << std::endl;
 	mStop = true;
-	//exit(signum); // XXX
+	mCrtlC = true;
 }
 
 std::string cCmdInterp::getHomeDir() {
@@ -418,5 +427,5 @@ std::string cCmdInterp::getPathFromFile(std::string fullFilePath) {
 
 
 std::atomic<bool> cCmdInterp::mStop(false);
-
+bool cCmdInterp::mCrtlC = false;
 
