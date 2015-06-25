@@ -17,6 +17,8 @@
 #include <crypto++/eccrypto.h>
 #include <crypto++/oids.h>
 #include <crypto++/files.h>
+#include <crypto++/sha.h>
+#include <crypto++/channels.h>
 
 using namespace CryptoPP;
 
@@ -79,6 +81,7 @@ class cKeysStorage {
 		void GenerateECDSAKey(std::string fileName);
 		void ECDSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename, bool signKey);
 		bool ECDSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename, std::string pathForKeys);
+		std::string block_to_SHA512(const char * const block, size_t block_size);
 
 	private:
 			
@@ -97,7 +100,6 @@ class cKeysStorage {
 			 * for filePath == file.txt returns empty string
 			 */
 			std::string getFilepath(const std::string &filePath);
-			
 		// void savePrivKey();
 		unsigned int mCurrentKey; ///< number of current key. Related to the numbers in mPrvKeys.
 

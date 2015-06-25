@@ -304,6 +304,26 @@ unsigned int cCmdInterp::verify(const std::string &sigFile, std::string &keyPath
 	
 	std::cout << "Starting verification loop" << std::endl; 
 	unsigned int lastGoodKey = 1;
+	
+	
+	// print sha512sum
+	fileName = prefixKeyName + "1" + suffixKeyName;
+	std::cout << "check " << fileName << " sum" << std::endl;
+	std::string keystr;
+	std::ifstream outFile(fileName);
+	char c;
+	while (!outFile.eof())
+	{
+		outFile >> std::noskipws >> c;
+		keystr += c;
+		std::cout << c;
+	}
+	outFile.close();
+	std::cout << fileName << " sha512sum" << std::endl;
+	std::cout << keyStorage.block_to_SHA512(keystr.data(), keystr.size()) << std::endl;
+	
+	
+	
 	while (good) {
 		fileName = prefixKeyName + std::to_string(keyNumber) + suffixKeyName;
 		std::cout << "file name " << fileName << std::endl;
@@ -424,7 +444,6 @@ std::string cCmdInterp::getPathFromFile(std::string fullFilePath) {
 	fullFilePath.erase(it, fullFilePath.end());
 	return fullFilePath;
 }
-
 
 std::atomic<bool> cCmdInterp::mStop(false);
 bool cCmdInterp::mCrtlC = false;
