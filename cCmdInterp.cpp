@@ -246,7 +246,7 @@ void cCmdInterp::cmdReadLoop()
 }
 
 
-unsigned int cCmdInterp::verify(const std::string &sigFile) // verify keys, get name of sig file (for generate path), return last good key
+unsigned int cCmdInterp::verify(const std::string &sigFile, std::string &keyPath) // verify keys, get name of sig file (for generate path), return last good key
 {
 	std::cout << "Starting verification of key chain." << std::endl;
 	//std::ifstream pubFile;
@@ -265,15 +265,14 @@ unsigned int cCmdInterp::verify(const std::string &sigFile) // verify keys, get 
 	std::cout << "parse sig path: " << sigFile << std::endl;
 	const std::string sigFilePath = getPathFromFile(sigFile);
 	std::cout << "path for sig file " << sigFilePath << std::endl;
-	const std::string homeKeyDir(getHomeDir() + "/keys/");
-	std::string pathForKey;
+	const std::string homeKeyDir(getHomeDir() + "keys/");
 	if (boost::filesystem::exists(homeKeyDir + "key_1.pub")) { // check /home/keys/key_1.pub
 		std::cout << homeKeyDir + "key_1.pub" << " exists" << std::endl;
-		pathForKey = std::move(homeKeyDir);
+		keyPath = std::move(homeKeyDir);
 	}
 	else if (boost::filesystem::exists(sigFilePath + "key_1.pub")) { // check sig file dir
 		std::cout << sigFilePath + "key_1.pub" << " exists" << std::endl;
-		pathForKey = std::move(sigFilePath);
+		keyPath = std::move(sigFilePath);
 	}
 	else if(boost::filesystem::exists("key_1.pub")) { // check current dir
 		std::cout << "key_1.pub" << " exists" << std::endl;
@@ -284,7 +283,7 @@ unsigned int cCmdInterp::verify(const std::string &sigFile) // verify keys, get 
 	}
 	
 	// parse the file name. Make sure it matches this function descr.
-	const std::string prefixKeyName(pathForKey + "key_"); // key_1.pub, key_2.pub ...
+	const std::string prefixKeyName(keyPath + "key_"); // key_1.pub, key_2.pub ...
 	const std::string suffixKeyName(".pub");
 	bool good = true;
 	int keyNumber = 2;
@@ -305,7 +304,7 @@ unsigned int cCmdInterp::verify(const std::string &sigFile) // verify keys, get 
 		
 		std::cout << "Verifying: " << fileName << std::endl;
 		//good = keyStorage.RSAVerifyFile(fileName);
-		good = keyStorage.ECDSAVerifyNormalFile(fileName, fileName + ".sig");
+		good = keyStorage.ECDSAVerifyNormalFile(fileName, fileName + ".sig", keyPath);
 		//RSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename);
 		if (good) {
 			lastGoodKey = keyNumber;
@@ -356,15 +355,15 @@ unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = file
 	
 
 	// TODO improve signature... N*N checks?  this re-checks from start
-	
-	unsigned int ret = verify(firstPubKey); // verify keys
+	std::string keyPath;
+	unsigned int ret = verify(fileName, keyPath); // verify keys, filename for parse sig file path
 	if (ret == -1) {
 		std::cout << "***keys verification error***" << std::endl;
 		return 2;
 	}
 	
 	std::cout << "file name " << fileName << " using " << fileName + ".sig" << std::endl;
-	ret = keyStorage.ECDSAVerifyNormalFile(fileName, fileName + ".sig");
+	ret = keyStorage.ECDSAVerifyNormalFile(fileName, fileName + ".sig", keyPath); // TODO last argument
 	//std::cout << ret << std::endl;
 	if (ret == 0) {
 		std::cout << "***file verification error***" << std::endl;

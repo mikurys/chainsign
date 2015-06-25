@@ -78,7 +78,7 @@ class cKeysStorage {
 		*/
 		void GenerateECDSAKey(std::string fileName);
 		void ECDSASignNormalFile(const std::string& inputFilename, const std::string& signatureFilename, bool signKey);
-		bool ECDSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename);
+		bool ECDSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename, std::string pathForKeys);
 
 	private:
 			

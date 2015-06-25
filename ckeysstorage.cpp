@@ -541,15 +541,16 @@ bool cKeysStorage::RSAVerifyNormalFile(const std::string& inputFilename, const s
 }
 
 
-bool cKeysStorage::ECDSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename) {
+bool cKeysStorage::ECDSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename, std::string pathForKeys) {
 	std::cout << "load " << signatureFilename << std::endl;
 	std::ifstream sigFile(signatureFilename);
 	std::string word;
 	sigFile >> word; sigFile >> word; // sig_version
 	sigFile >> word; sigFile >> word; // crypto_type
 	sigFile >> word; // "PubKeyFilename"
-	std::string pubFileName;
-	sigFile >> pubFileName;
+	std::string pubFileName(std::move(pathForKeys));
+	sigFile >> word;
+	pubFileName += word;
 	sigFile >> word; // "SignatureSize"
 	unsigned int signatureSize;
 	sigFile >> signatureSize;
