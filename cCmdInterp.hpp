@@ -10,6 +10,7 @@
 #include <atomic>
 #include <memory>
 #include <boost/interprocess/ipc/message_queue.hpp>
+#include <boost/filesystem.hpp>
 #include <sys/types.h>
 #include <pwd.h>
 #include "ckeysstorage.h"
@@ -31,7 +32,7 @@ class cCmdInterp {
  		* verify entire chain of keys. returns number of the last good key, or -1 if error/verifiacation failed. Warns user (cout)
 		* @param firstKey - name of the key - entire file name to open this file in format: BASEPATH/key_1.pub" e.g. "data1/key_1.pub"
 		*/
-		unsigned int verify(std::string firstKey); 
+		unsigned int verify(const std::string &sigFile); ///< sigFile for generate path
 
 		void setOutDir(std::string outDir); ///< (not used?) move files there after verification
 
@@ -54,8 +55,8 @@ class cCmdInterp {
 		std::string getCmdFromMsgQueue(); ///< receive one message form mMsgQueue, calling thread is blocked if mMsgQueue is empty
 
 		static void signalHandler(int signum); ///< react to event like ctrl-C key, sets flag to exit
-		static std::string getHomeDir();
-		static std::string getPathFromFile(std::string fullFilePath);
+		static std::string getHomeDir(); ///< /home/user
+		static std::string getPathFromFile(std::string fullFilePath); ///< /home/user/dir/file.txt => /home/user/dir/
 };
 
 #endif

@@ -246,7 +246,7 @@ void cCmdInterp::cmdReadLoop()
 }
 
 
-unsigned int cCmdInterp::verify(std::string firstKey) // verify keys, get name of 1st pub file, return last good key
+unsigned int cCmdInterp::verify(const std::string &sigFile) // verify keys, get name of sig file (for generate path), return last good key
 {
 	std::cout << "Starting verification of key chain." << std::endl;
 	//std::ifstream pubFile;
@@ -261,9 +261,30 @@ unsigned int cCmdInterp::verify(std::string firstKey) // verify keys, get name o
 		firstKey.erase(firstKey.begin());
 	}
 */
-
+	// find first key
+	std::cout << "parse sig path: " << sigFile << std::endl;
+	const std::string sigFilePath = getPathFromFile(sigFile);
+	std::cout << "path for sig file " << sigFilePath << std::endl;
+	const std::string homeKeyDir(getHomeDir() + "/keys/");
+	std::string pathForKey;
+	if (boost::filesystem::exists(homeKeyDir + "key_1.pub")) { // check /home/keys/key_1.pub
+		std::cout << homeKeyDir + "key_1.pub" << " exists" << std::endl;
+		pathForKey = std::move(homeKeyDir);
+	}
+	else if (boost::filesystem::exists(sigFilePath + "key_1.pub")) { // check sig file dir
+		std::cout << sigFilePath + "key_1.pub" << " exists" << std::endl;
+		pathForKey = std::move(sigFilePath);
+	}
+	else if(boost::filesystem::exists("key_1.pub")) { // check current dir
+		std::cout << "key_1.pub" << " exists" << std::endl;
+	}
+	else {
+		std::cout << "cannot find key_1.pub" << std::endl;
+		throw std::runtime_error("cannot find key_1.pub");
+	}
+	
 	// parse the file name. Make sure it matches this function descr.
-	const std::string prefixKeyName("key_"); // key_1.pub, key_2.pub ...
+	const std::string prefixKeyName(pathForKey + "key_"); // key_1.pub, key_2.pub ...
 	const std::string suffixKeyName(".pub");
 	bool good = true;
 	int keyNumber = 2;
