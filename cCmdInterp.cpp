@@ -373,6 +373,26 @@ void cCmdInterp::signalHandler(int signum) {
 	//exit(signum); // XXX
 }
 
+std::string cCmdInterp::getHomeDir() {
+	struct passwd *pw = getpwuid(getuid());
+	std::string home = pw->pw_dir;
+	home += "/";
+	return home;
+}
+
+std::string cCmdInterp::getPathFromFile(std::string fullFilePath) {
+	if (fullFilePath.find('/') == std::string::npos) {
+		throw std::runtime_error("path error");
+	}
+	std::string::iterator it = fullFilePath.end() - 1;
+	while (*it != '/') {
+		it--;
+	}
+	fullFilePath.erase(fullFilePath.begin(), it);
+	return fullFilePath;
+}
+
+
 std::atomic<bool> cCmdInterp::mStop(false);
 
 

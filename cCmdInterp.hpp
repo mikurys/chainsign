@@ -54,7 +54,8 @@ class cCmdInterp {
 		std::string getCmdFromMsgQueue(); ///< receive one message form mMsgQueue, calling thread is blocked if mMsgQueue is empty
 
 		static void signalHandler(int signum); ///< react to event like ctrl-C key, sets flag to exit
-		
+		static std::string getHomeDir();
+		static std::string getPathFromFile(std::string fullFilePath);
 };
 
 #endif
