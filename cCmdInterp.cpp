@@ -419,7 +419,7 @@ unsigned int cCmdInterp::verifyFilesInDir(const std::string &file_type, std::str
 	for (auto i = directory_iterator(dir_path); i != directory_iterator(); i++) {
 		if (is_directory(i->path())) continue;
 		const std::string path_str(i->path().filename().string());
-		if (path_str.substr(path_str.size()-3) != file_type) continue;
+		if (path_str.substr(path_str.size()-file_type.size()) != file_type) continue; // TODO size of path_str
 		if (first_file) {
 			last_good_key = verify(dir + path_str + ".sig", key_path);
 			std::cout << "key_path " << key_path << std::endl;
@@ -453,6 +453,7 @@ unsigned int cCmdInterp::verifyFilesInDir(const std::string &file_type, std::str
 		}
 	}
 	//unsigned int last_good_key = verify();
+	return 0;
 }
 
 
