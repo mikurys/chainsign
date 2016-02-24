@@ -430,10 +430,26 @@ unsigned int cCmdInterp::verifyFilesInDir(const std::string &file_type, std::str
 			}
 			first_file = false;
 		}
+
 		unsigned int ret = keyStorage.ECDSAVerifyNormalFile(dir + path_str, dir + path_str + ".sig", key_path);
 		if (ret == 0) {
 			std::cout << "***file verification error***" << std::endl;
 			return 3;
+		}
+		// check key number
+		std::ifstream sig_file(dir + path_str + ".sig");
+		std::string key_number;
+		for (int i = 0; i < 6; ++i) {
+			sig_file >> key_number;
+		}
+		key_number.erase(key_number.size() - 4);
+		key_number.erase(0, 4);
+		std::cout << "key_number " << key_number << std::endl;
+		if (last_good_key < std::stoi(key_number)) {
+			std::cout << "***file verification error***" << std::endl;
+			std::cout << "last good key = " << last_good_key << std::endl;
+			std::cout << "file key = " << key_number << std::endl;
+			return 4;
 		}
 	}
 	//unsigned int last_good_key = verify();
