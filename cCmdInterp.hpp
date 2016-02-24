@@ -38,6 +38,11 @@ class cCmdInterp {
 		void setOutDir(std::string outDir); ///< (not used?) move files there after verification
 
 		unsigned int verifyOneFile(std::string fileName); ///< verifies one signature.
+		/**
+		 * @param file_type i.e. png, mp3, txt, ...
+		 * @param dir dir name
+		 */
+		unsigned int verifyFilesInDir(const std::string &file_type, std::string dir);
 		
 		cKeysStorage keyStorage;
 

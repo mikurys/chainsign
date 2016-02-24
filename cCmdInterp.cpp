@@ -407,6 +407,39 @@ unsigned int cCmdInterp::verifyOneFile(std::string fileName) //fileName = file
 	return 1;
 }
 
+unsigned int cCmdInterp::verifyFilesInDir(const std::string &file_type, std::string dir) {
+	if (dir.back() != '/') dir.push_back('/');
+	std::cout << "file_type " << file_type << std::endl;
+	std::cout << "dir " << dir << std::endl;
+	bool first_file = true;
+	unsigned int last_good_key = -1;
+	std::string key_path;
+	using namespace boost::filesystem;
+	path dir_path(dir);
+	for (auto i = directory_iterator(dir_path); i != directory_iterator(); i++) {
+		if (is_directory(i->path())) continue;
+		const std::string path_str(i->path().filename().string());
+		if (path_str.substr(path_str.size()-3) != file_type) continue;
+		if (first_file) {
+			last_good_key = verify(dir + path_str + ".sig", key_path);
+			std::cout << "key_path " << key_path << std::endl;
+			std::cout << "last good key " << last_good_key << std::endl;
+			if (last_good_key == -1) {
+				std::cout << "***keys verification error***" << std::endl;
+				return 2;
+			}
+			first_file = false;
+		}
+		unsigned int ret = keyStorage.ECDSAVerifyNormalFile(dir + path_str, dir + path_str + ".sig", key_path);
+		if (ret == 0) {
+			std::cout << "***file verification error***" << std::endl;
+			return 3;
+		}
+	}
+	//unsigned int last_good_key = verify();
+}
+
+
 std::string cCmdInterp::getCmdFromMsgQueue() {
 	char receiveMsg[MAX_MESSAGE_SIZE];
 	boost::interprocess::message_queue::size_type recv_size;

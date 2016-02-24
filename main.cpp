@@ -78,6 +78,7 @@ int main(int argc, char* argv[]) {
 		("daemon", "run as daemon mode")
 		("continue", "[prv_file_name]")
 		//("verify-chain", "[key.pub] [good_keys] verify keys and move them to good-key")
+		("verify-dir", "[file_type] [dir]")
 		("verify-file", "[file]");
 		//("client", "[command]");
 
@@ -141,6 +142,12 @@ int main(int argc, char* argv[]) {
 				return cmdInterp.verifyOneFile(std::string(argv[2]));
 			}
 
+			if (vm.count("verify-dir")) {
+				assert(argc == 4);
+				cCmdInterp cmdInterp;
+				return cmdInterp.verifyFilesInDir(std::string(argv[2]), std::string(argv[3]));
+			}
+
 			if (vm.count("client")) {
 				if (!isDaemonRunning()) return 1;
 				string cmd = argv[2]; cmd += "\n";
@@ -148,6 +155,7 @@ int main(int argc, char* argv[]) {
 
 				return 0;
 			}
+
 
 			/*
 			 std::cout << KEY_SIZE << std::endl;
