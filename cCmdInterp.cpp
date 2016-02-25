@@ -433,6 +433,7 @@ unsigned int cCmdInterp::verifyFilesInDir(const std::string &file_type, std::str
 			std::cout << "last good key " << last_good_key << std::endl;
 			if (last_good_key == -1) {
 				std::cout << "\x1B[31m***keys verification error***" << std::endl;
+				std::cout << "not found last good key, check ~/keys dir" << std::endl;
 				return 2;
 			}
 			first_file = false;
@@ -449,6 +450,7 @@ unsigned int cCmdInterp::verifyFilesInDir(const std::string &file_type, std::str
 		}
 		if (ret == 0) {
 			std::cout << "\x1B[31m***file verification error***" << std::endl;
+			std::cout << dir + path_str + ".sig" << " is not valid signature for file " << dir + path_str << std::endl;
 			return 3;
 		}
 		// check key number
