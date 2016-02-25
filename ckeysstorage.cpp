@@ -246,6 +246,9 @@ CryptoPP::RSA::PublicKey cKeysStorage::loadPubFile(std::string pPubKey)
 
 ECDSA<ECP, SHA512>::PublicKey cKeysStorage::ECDSALoadPubKey(const std::string &pubKeyFilename) {
 	std::cout << "start load ECDSA pub key from " << pubKeyFilename << std::endl;
+	if (!boost::filesystem::exists(pubKeyFilename)) {
+		throw std::runtime_error(std::string("File ") + pubKeyFilename + std::string(" not exists"));
+	}
 	AutoSeededRandomPool rng;
 	CryptoPP::ByteQueue bytes;
 	ECDSA<ECP, SHA512>::PublicKey publicKey;

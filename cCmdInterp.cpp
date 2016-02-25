@@ -421,11 +421,18 @@ unsigned int cCmdInterp::verifyFilesInDir(const std::string &file_type, std::str
 		const std::string path_str(i->path().filename().string());
 		if (path_str.substr(path_str.size()-file_type.size()) != file_type) continue; // TODO size of path_str
 		if (first_file) {
-			last_good_key = verify(dir + path_str + ".sig", key_path);
+			try {
+				std::cout << "*** verify" << std::endl;
+				last_good_key = verify(dir + path_str + ".sig", key_path);
+			}
+			catch ( ... ) {
+				std::cout << "\x1B[31m****ERROR*****" << std::endl;
+				std::cout << "key verification error" << std::endl;
+			}
 			std::cout << "key_path " << key_path << std::endl;
 			std::cout << "last good key " << last_good_key << std::endl;
 			if (last_good_key == -1) {
-				std::cout << "***keys verification error***" << std::endl;
+				std::cout << "\x1B[31m***keys verification error***" << std::endl;
 				return 2;
 			}
 			first_file = false;
@@ -433,7 +440,7 @@ unsigned int cCmdInterp::verifyFilesInDir(const std::string &file_type, std::str
 
 		unsigned int ret = keyStorage.ECDSAVerifyNormalFile(dir + path_str, dir + path_str + ".sig", key_path);
 		if (ret == 0) {
-			std::cout << "***file verification error***" << std::endl;
+			std::cout << "\x1B[31m***file verification error***" << std::endl;
 			return 3;
 		}
 		// check key number
@@ -446,7 +453,7 @@ unsigned int cCmdInterp::verifyFilesInDir(const std::string &file_type, std::str
 		key_number.erase(0, 4);
 		std::cout << "key_number " << key_number << std::endl;
 		if (last_good_key < std::stoi(key_number)) {
-			std::cout << "***file verification error***" << std::endl;
+			std::cout << "\x1B[31m***file verification error***" << std::endl;
 			std::cout << "last good key = " << last_good_key << std::endl;
 			std::cout << "file key = " << key_number << std::endl;
 			return 4;
