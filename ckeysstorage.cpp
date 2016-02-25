@@ -481,6 +481,9 @@ void cKeysStorage::ECDSASignNormalFile(const std::string& inputFilename, const s
 	// load data from input file to string
 	std::cout << "load clear file " << inputFilename << std::endl;
 	std::string strContents;
+	if (!boost::filesystem::exists(inputFilename)) {
+		throw std::runtime_error(std::string("File ") + inputFilename + std::string(" not exists"));
+	}
 	FileSource(inputFilename.c_str(), true, new StringSink(strContents));
 	std::cout << "Size of data to sign: " << strContents.size() << std::endl;
 	const std::string pubKeyFilename("key_" + std::to_string(mCurrentKey - 1) + ".pub");
@@ -558,6 +561,12 @@ bool cKeysStorage::RSAVerifyNormalFile(const std::string& inputFilename, const s
 
 
 bool cKeysStorage::ECDSAVerifyNormalFile(const std::string& inputFilename, const std::string& signatureFilename, std::string pathForKeys) {
+	if (!boost::filesystem::exists(inputFilename)) {
+		throw std::runtime_error(std::string("File ") + inputFilename + std::string(" not exists"));
+	}
+	if (!boost::filesystem::exists(signatureFilename)) {
+		throw std::runtime_error(std::string("File ") + signatureFilename + std::string(" not exists"));
+	}
 	std::cout << "load " << signatureFilename << std::endl;
 	std::ifstream sigFile(signatureFilename);
 	std::string word;

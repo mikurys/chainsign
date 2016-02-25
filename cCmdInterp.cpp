@@ -438,7 +438,15 @@ unsigned int cCmdInterp::verifyFilesInDir(const std::string &file_type, std::str
 			first_file = false;
 		}
 
-		unsigned int ret = keyStorage.ECDSAVerifyNormalFile(dir + path_str, dir + path_str + ".sig", key_path);
+		unsigned int ret;
+		try {
+			ret = keyStorage.ECDSAVerifyNormalFile(dir + path_str, dir + path_str + ".sig", key_path);
+		}
+		catch (const std::runtime_error &e) {
+			std::cout << "\x1B[31m***ERROR***" << std::endl;
+			std::cout << e.what() << std::endl;
+			return 5;
+		}
 		if (ret == 0) {
 			std::cout << "\x1B[31m***file verification error***" << std::endl;
 			return 3;
