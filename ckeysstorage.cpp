@@ -77,8 +77,8 @@ void cKeysStorage::GenerateECDSAKey(std::string fileName) {
 		std::cout << c;
 	}
 	outFile.close();
-	std::cout << fileName << " sha512sum" << std::endl;
-	std::cout << block_to_SHA512(keystr.data(), keystr.size()) << std::endl;
+//	std::cout << fileName << " sha512sum" << std::endl;
+//	std::cout << block_to_SHA512(keystr.data(), keystr.size()) << std::endl;
 }
 
 bool cKeysStorage::RSAVerifyFile(const std::string &sigFileName) // load .sig file
