@@ -73,22 +73,27 @@ void cKeysStorage::GenerateECDSAKey(std::string fileName) {
 	while (!outFile.eof())
 	{
 		outFile >> std::noskipws >> c;
+		if (!outFile.good()) break;
 		keystr += c;
-		std::cout << c;
 	}
+	std::cout << std::endl;
 	outFile.close();
-//	std::cout << fileName << " sha512sum" << std::endl;
-//	std::cout << block_to_SHA512(keystr.data(), keystr.size()) << std::endl;
 
-	std::string s1;//(block,block_size);
+	std::cout << fileName << " sha512sum" << std::endl;
+	std::string sha_str = block_to_SHA512(keystr.data(), keystr.size());
+
+	std::string sha_file;//(block,block_size);
 	SHA512 sha512;
 	ChannelSwitch cs;
-	HashFilter HF(sha512, new HexEncoder(new StringSink(s1)));
+	HashFilter HF(sha512, new HexEncoder(new StringSink(sha_file)));
 	cs.AddDefaultRoute(HF);
 
 	//StringSource ss(std::string(block,block_size), true /*pumpAll*/, new Redirector(cs));
 	FileSource fs(fileName.c_str(), true, new Redirector(cs));
-	std::cout << "file SHA512 " << s1 << std::endl;
+
+	std::cout << "SHA512 calculated by StringSource " << sha_str << std::endl;
+	std::cout << "SHA512 calculated by FileSource " << sha_file << std::endl;
+	assert(sha_str == sha_file);
 }
 
 bool cKeysStorage::RSAVerifyFile(const std::string &sigFileName) // load .sig file
@@ -653,8 +658,8 @@ std::string cKeysStorage::block_to_SHA512(const char * const block, size_t block
 	ChannelSwitch cs;
 	cs.AddDefaultRoute(HF);
 	StringSource ss(std::string(block,block_size), true /*pumpAll*/, new Redirector(cs));
-	std::cout << "SHA-512: " << s1 << std::endl;
-	std::cout << "s1 size " << s1.size() << std::endl;
+//	std::cout << "SHA-512: " << s1 << std::endl;
+//	std::cout << "s1 size " << s1.size() << std::endl;
 	return s1;
 }
 
