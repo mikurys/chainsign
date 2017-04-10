@@ -80,11 +80,17 @@ void cCmdInterp::cmdReadLoop()
 			std::cout << "load filename" << std::endl;
 			auto target_filename = getCmdFromMsgQueue();
 			std::cout << "filename = " << target_filename << std::endl;
-			if (!boost::filesystem::exists(target_filename)) {
-				std::cout << "File not found " << target_filename << std::endl;
+			auto time_point = std::chrono::steady_clock::now();
+
+			while (!boost::filesystem::exists(target_filename) || std::chrono::steady_clock::now() - time_point < std::chrono::seconds(5) ) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 				//system("rm *.pub");
+			}
+			if (!boost::filesystem::exists(target_filename) ) {
+				std::cout << "File not found " << target_filename << std::endl;
 				continue;
 			}
+				
 
 			std::cout << "sign file " << target_filename << std::endl;
 			//std::cout << "cp " << target_filename << " to ." << std::endl;
